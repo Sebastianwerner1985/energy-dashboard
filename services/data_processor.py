@@ -309,19 +309,39 @@ class DataProcessor:
             start_time.isoformat()
         )
 
-        # Process history data
-        history = []
+        # Process history data - aggregate by day
+        daily_data = {}
 
         for entry in history_raw:
             try:
                 timestamp = parser.parse(entry['last_changed'])
                 power = float(entry['state'])
-                history.append({
-                    'timestamp': timestamp.strftime('%Y-%m-%d %H:%M'),
-                    'power': power
-                })
+
+                # Group by date only (ignore time)
+                date_key = timestamp.strftime('%Y-%m-%d')
+
+                if date_key not in daily_data:
+                    daily_data[date_key] = {
+                        'count': 0,
+                        'total': 0,
+                        'max': 0
+                    }
+
+                daily_data[date_key]['count'] += 1
+                daily_data[date_key]['total'] += power
+                daily_data[date_key]['max'] = max(daily_data[date_key]['max'], power)
+
             except (ValueError, KeyError):
                 continue
+
+        # Calculate daily averages
+        history = []
+        for date_key in sorted(daily_data.keys()):
+            avg_power = daily_data[date_key]['total'] / daily_data[date_key]['count']
+            history.append({
+                'timestamp': date_key,
+                'power': round(avg_power, 1)
+            })
 
         data = {
             'history': history,
