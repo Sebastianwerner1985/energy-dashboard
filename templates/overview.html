@@ -79,23 +79,26 @@
 <!-- Quick Navigation -->
 <div class="main-card">
     <h2 class="main-card-title">Quick Access</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-top: var(--space-4);">
-        <a href="{{ url_for('realtime') }}" style="text-decoration: none;">
-            <div class="stat-card">
-                <div class="stat-icon">⚡</div>
-                <div class="stat-label" style="color: var(--text-primary); font-size: var(--text-base);">Real-time Monitor</div>
+    <div class="quick-access-grid" style="margin-top: var(--space-4);">
+        <a href="{{ url_for('realtime') }}" class="quick-link">
+            <div class="quick-link-icon">⚡</div>
+            <div class="quick-link-content">
+                <div class="quick-link-title">Real-time Monitor</div>
+                <div class="quick-link-description">View current power usage</div>
             </div>
         </a>
-        <a href="{{ url_for('costs') }}" style="text-decoration: none;">
-            <div class="stat-card">
-                <div class="stat-icon">💰</div>
-                <div class="stat-label" style="color: var(--text-primary); font-size: var(--text-base);">Cost Analysis</div>
+        <a href="{{ url_for('costs') }}" class="quick-link">
+            <div class="quick-link-icon">💰</div>
+            <div class="quick-link-content">
+                <div class="quick-link-title">Cost Analysis</div>
+                <div class="quick-link-description">Analyze energy costs</div>
             </div>
         </a>
-        <a href="{{ url_for('history') }}" style="text-decoration: none;">
-            <div class="stat-card">
-                <div class="stat-icon">📈</div>
-                <div class="stat-label" style="color: var(--text-primary); font-size: var(--text-base);">Historical Trends</div>
+        <a href="{{ url_for('history') }}" class="quick-link">
+            <div class="quick-link-icon">📈</div>
+            <div class="quick-link-content">
+                <div class="quick-link-title">Historical Trends</div>
+                <div class="quick-link-description">View usage patterns</div>
             </div>
         </a>
     </div>

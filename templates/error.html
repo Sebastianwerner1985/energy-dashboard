@@ -3,52 +3,44 @@
 {% block title %}Error - Energy Dashboard{% endblock %}
 
 {% block content %}
-<div style="display: flex; align-items: center; justify-content: center; min-height: 60vh;">
-    <div style="max-width: 500px; text-align: center;">
-        <!-- Error Icon -->
-        <div style="font-size: 64px; margin-bottom: var(--space-4);">❌</div>
+<div class="error-container">
+    <!-- Error Icon -->
+    <div class="error-code">❌</div>
 
-        <!-- Error Message -->
-        <div class="alert alert-error" style="text-align: left;">
-            <span class="alert-icon">⚠️</span>
-            <div class="alert-content">
-                <div class="alert-title">Something went wrong</div>
-                <div>
-                    {% if error %}
-                        {{ error }}
-                    {% else %}
-                        An unexpected error occurred. Please try again.
-                    {% endif %}
-                </div>
+    <!-- Error Message -->
+    <div class="alert alert-error" style="text-align: left; margin-bottom: var(--space-6);">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+            <div class="alert-title">Something went wrong</div>
+            <div>
+                {% if error %}
+                    {{ error }}
+                {% else %}
+                    An unexpected error occurred. Please try again.
+                {% endif %}
             </div>
         </div>
+    </div>
 
-        <!-- Action Buttons -->
-        <div style="display: flex; gap: var(--space-3); justify-content: center; margin-top: var(--space-6);">
-            <a
-                href="{{ url_for('settings') }}"
-                style="padding: var(--space-3) var(--space-6); background-color: var(--color-primary); color: white; border: none; border-radius: var(--radius-md); font-weight: var(--font-medium); text-decoration: none; font-size: var(--text-sm); display: inline-block;"
-            >
-                Check Settings
-            </a>
-            <a
-                href="{{ url_for('overview') }}"
-                style="padding: var(--space-3) var(--space-6); background-color: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); border-radius: var(--radius-md); font-weight: var(--font-medium); text-decoration: none; font-size: var(--text-sm); display: inline-block;"
-            >
-                Go to Overview
-            </a>
-        </div>
+    <!-- Action Buttons -->
+    <div class="error-actions">
+        <a href="{{ url_for('settings') }}" class="btn btn-primary">
+            Check Settings
+        </a>
+        <a href="{{ url_for('overview') }}" class="btn btn-secondary">
+            Go to Overview
+        </a>
+    </div>
 
-        <!-- Additional Help -->
-        <div style="margin-top: var(--space-6); color: var(--text-muted); font-size: var(--text-sm);">
-            <p>Common issues:</p>
-            <ul style="text-align: left; margin-top: var(--space-2);">
-                <li>Home Assistant connection not configured</li>
-                <li>Invalid access token</li>
-                <li>Home Assistant server unreachable</li>
-                <li>No energy monitoring devices found</li>
-            </ul>
-        </div>
+    <!-- Additional Help -->
+    <div style="margin-top: var(--space-6); color: var(--text-muted); font-size: var(--text-sm);">
+        <p>Common issues:</p>
+        <ul style="text-align: left; margin-top: var(--space-2);">
+            <li>Home Assistant connection not configured</li>
+            <li>Invalid access token</li>
+            <li>Home Assistant server unreachable</li>
+            <li>No energy monitoring devices found</li>
+        </ul>
     </div>
 </div>
 {% endblock %}
