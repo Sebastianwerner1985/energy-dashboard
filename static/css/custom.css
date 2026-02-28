@@ -243,16 +243,16 @@
 .main-card {
     background-color: var(--bg-surface);
     border-radius: var(--radius-xl);
-    padding: var(--space-4);
+    padding: var(--space-2);
     box-shadow: var(--shadow-sm);
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
 }
 
 .main-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
 }
 
 .main-card-title {
@@ -321,6 +321,7 @@ tbody tr:last-child td {
 .chart-container {
     position: relative;
     margin: 0;
+    padding: 0;
 }
 
 .chart-wrapper {
