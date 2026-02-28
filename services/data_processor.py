@@ -309,39 +309,77 @@ class DataProcessor:
             start_time.isoformat()
         )
 
-        # Process history data - aggregate by day
-        daily_data = {}
+        # Process history data - aggregate based on period
+        if period == '24h':
+            # For 24h view, aggregate by hour
+            hourly_data = {}
 
-        for entry in history_raw:
-            try:
-                timestamp = parser.parse(entry['last_changed'])
-                power = float(entry['state'])
+            for entry in history_raw:
+                try:
+                    timestamp = parser.parse(entry['last_changed'])
+                    power = float(entry['state'])
 
-                # Group by date only (ignore time)
-                date_key = timestamp.strftime('%Y-%m-%d')
+                    # Group by hour
+                    hour_key = timestamp.strftime('%Y-%m-%d %H:00')
 
-                if date_key not in daily_data:
-                    daily_data[date_key] = {
-                        'count': 0,
-                        'total': 0,
-                        'max': 0
-                    }
+                    if hour_key not in hourly_data:
+                        hourly_data[hour_key] = {
+                            'count': 0,
+                            'total': 0,
+                            'max': 0
+                        }
 
-                daily_data[date_key]['count'] += 1
-                daily_data[date_key]['total'] += power
-                daily_data[date_key]['max'] = max(daily_data[date_key]['max'], power)
+                    hourly_data[hour_key]['count'] += 1
+                    hourly_data[hour_key]['total'] += power
+                    hourly_data[hour_key]['max'] = max(hourly_data[hour_key]['max'], power)
 
-            except (ValueError, KeyError):
-                continue
+                except (ValueError, KeyError):
+                    continue
 
-        # Calculate daily averages
-        history = []
-        for date_key in sorted(daily_data.keys()):
-            avg_power = daily_data[date_key]['total'] / daily_data[date_key]['count']
-            history.append({
-                'timestamp': date_key,
-                'power': round(avg_power, 1)
-            })
+            # Calculate hourly averages
+            history = []
+            for hour_key in sorted(hourly_data.keys()):
+                avg_power = hourly_data[hour_key]['total'] / hourly_data[hour_key]['count']
+                # Format as HH:00 for display
+                display_time = datetime.strptime(hour_key, '%Y-%m-%d %H:00').strftime('%H:%M')
+                history.append({
+                    'timestamp': display_time,
+                    'power': round(avg_power, 1)
+                })
+        else:
+            # For 7d and 30d views, aggregate by day
+            daily_data = {}
+
+            for entry in history_raw:
+                try:
+                    timestamp = parser.parse(entry['last_changed'])
+                    power = float(entry['state'])
+
+                    # Group by date only (ignore time)
+                    date_key = timestamp.strftime('%Y-%m-%d')
+
+                    if date_key not in daily_data:
+                        daily_data[date_key] = {
+                            'count': 0,
+                            'total': 0,
+                            'max': 0
+                        }
+
+                    daily_data[date_key]['count'] += 1
+                    daily_data[date_key]['total'] += power
+                    daily_data[date_key]['max'] = max(daily_data[date_key]['max'], power)
+
+                except (ValueError, KeyError):
+                    continue
+
+            # Calculate daily averages
+            history = []
+            for date_key in sorted(daily_data.keys()):
+                avg_power = daily_data[date_key]['total'] / daily_data[date_key]['count']
+                history.append({
+                    'timestamp': date_key,
+                    'power': round(avg_power, 1)
+                })
 
         data = {
             'history': history,
