@@ -179,22 +179,52 @@ class HomeAssistantClient:
         Returns:
             Room name or 'Other' if not determinable
         """
-        # Common room names
-        rooms = ['living room', 'bedroom', 'kitchen', 'bathroom', 'office',
-                 'garage', 'basement', 'attic', 'dining room', 'laundry']
+        # Common room names in English and German
+        room_mappings = {
+            # English
+            'living room': 'Living Room',
+            'bedroom': 'Bedroom',
+            'kitchen': 'Kitchen',
+            'bathroom': 'Bathroom',
+            'office': 'Office',
+            'garage': 'Garage',
+            'basement': 'Basement',
+            'attic': 'Attic',
+            'dining room': 'Dining Room',
+            'laundry': 'Laundry',
+            'hallway': 'Hallway',
+            'entry': 'Entry',
+            # German
+            'wohnzimmer': 'Wohnzimmer',
+            'schlafzimmer': 'Schlafzimmer',
+            'küche': 'Küche',
+            'badezimmer': 'Badezimmer',
+            'bad': 'Badezimmer',
+            'büro': 'Büro',
+            'arbeitszimmer': 'Arbeitszimmer',
+            'garage': 'Garage',
+            'keller': 'Keller',
+            'dachboden': 'Dachboden',
+            'esszimmer': 'Esszimmer',
+            'waschküche': 'Waschküche',
+            'flur': 'Flur',
+            'eingang': 'Eingang',
+            'galerie': 'Galerie',
+            'heizung': 'Heizung',
+        }
 
         # Check friendly name first
         name_lower = friendly_name.lower()
-        for room in rooms:
-            if room in name_lower:
-                return room.title()
+        for room_key, room_name in room_mappings.items():
+            if room_key in name_lower:
+                return room_name
 
         # Check entity_id
         entity_lower = entity_id.lower()
-        for room in rooms:
-            room_slug = room.replace(' ', '_')
+        for room_key, room_name in room_mappings.items():
+            room_slug = room_key.replace(' ', '_')
             if room_slug in entity_lower:
-                return room.title()
+                return room_name
 
         return 'Other'
 

@@ -19,8 +19,23 @@ async function refreshData() {
         const response = await fetch('/api/realtime');
         const data = await response.json();
 
-        if (data.success) {
+        // Update total power
+        if (data.total_power !== undefined) {
+            const totalPowerEl = document.getElementById('totalPower');
+            if (totalPowerEl) {
+                totalPowerEl.textContent = data.total_power.toFixed(1);
+            }
+        }
+
+        // Update device table
+        if (data.devices) {
             updateDeviceTable(data.devices);
+        }
+
+        // Update timestamp
+        const timestampEl = document.getElementById('lastUpdate');
+        if (timestampEl) {
+            timestampEl.textContent = new Date().toLocaleTimeString();
         }
     } catch (error) {
         console.error('Failed to refresh data:', error);
