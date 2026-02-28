@@ -292,7 +292,7 @@ class DataProcessor:
 
         power_sensors = self.ha_client.get_power_sensors()
 
-        # Get history for main power sensor (assuming first one is main)
+        # Prioritize bitshake sensor for history (whole-house meter)
         if not power_sensors:
             return {
                 'history': [],
@@ -303,7 +303,20 @@ class DataProcessor:
                 'timestamp': datetime.now().isoformat()
             }
 
-        main_sensor = power_sensors[0]
+        # Find bitshake sensor first, otherwise use first sensor
+        main_sensor = None
+        for sensor in power_sensors:
+            entity_id = sensor['entity_id']
+            friendly_name = sensor.get('attributes', {}).get('friendly_name', entity_id)
+            if 'bitshake' in entity_id.lower() or 'bitshake' in friendly_name.lower():
+                main_sensor = sensor
+                logger.info(f"Using bitshake sensor for history: {entity_id}")
+                break
+
+        if not main_sensor:
+            main_sensor = power_sensors[0]
+            logger.info(f"Using first power sensor for history: {main_sensor['entity_id']}")
+
         history_raw = self.ha_client.get_history(
             main_sensor['entity_id'],
             start_time.isoformat()
