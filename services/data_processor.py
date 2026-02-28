@@ -481,15 +481,39 @@ class DataProcessor:
         Returns:
             Daily energy in kWh
         """
-        # Try to use HA Energy Dashboard sensors first (they track daily automatically)
-        # Look for sensors with "energy" and "daily" or "today" in the name
+        # PRIORITY 1: Look for bitshake daily energy sensors first (whole-house meter)
         for sensor in sensors:
             try:
                 entity_id = sensor.get('entity_id', '').lower()
                 friendly_name = sensor.get('attributes', {}).get('friendly_name', '').lower()
 
-                # Check for daily energy sensors
-                if any(keyword in entity_id or keyword in friendly_name for keyword in ['daily', 'today', '_day']):
+                # Check if this is a bitshake daily energy sensor
+                if ('bitshake' in entity_id or 'bitshake' in friendly_name) and \
+                   any(keyword in entity_id or keyword in friendly_name for keyword in ['daily', 'today', '_day']):
+                    state = sensor['state']
+                    if state not in ['unknown', 'unavailable', 'none', None]:
+                        value = float(state)
+                        unit = sensor.get('attributes', {}).get('unit_of_measurement', 'kWh')
+
+                        # Convert to kWh
+                        if unit == 'Wh':
+                            value /= 1000
+
+                        if value > 0 and value < 1000:  # Sanity check (not cumulative)
+                            logger.info(f"Using bitshake daily energy sensor: {sensor.get('entity_id')} = {value} kWh")
+                            return value
+            except (ValueError, KeyError):
+                continue
+
+        # PRIORITY 2: Try other daily energy sensors
+        for sensor in sensors:
+            try:
+                entity_id = sensor.get('entity_id', '').lower()
+                friendly_name = sensor.get('attributes', {}).get('friendly_name', '').lower()
+
+                # Check for daily energy sensors (excluding bitshake, already checked above)
+                if ('bitshake' not in entity_id and 'bitshake' not in friendly_name) and \
+                   any(keyword in entity_id or keyword in friendly_name for keyword in ['daily', 'today', '_day']):
                     state = sensor['state']
                     if state not in ['unknown', 'unavailable', 'none', None]:
                         value = float(state)
@@ -505,11 +529,9 @@ class DataProcessor:
             except (ValueError, KeyError):
                 continue
 
-        # Fallback: estimate from current power usage
-        # This is less accurate but doesn't show cumulative values
+        # PRIORITY 3: Fallback - estimate from current power usage (bitshake preferred)
         power_sensors = self.ha_client.get_power_sensors()
 
-        # Filter out bitshake
         bitshake_power = 0
         tracked_power = 0
 
@@ -532,7 +554,7 @@ class DataProcessor:
         # Estimate: assume current power for all hours so far today
         estimated_kwh = (current_power / 1000) * hours_today
 
-        logger.warning(f"Using estimated daily energy: {estimated_kwh:.2f} kWh (no daily sensor found)")
+        logger.warning(f"Using estimated daily energy from {'bitshake' if bitshake_power > 0 else 'tracked devices'}: {estimated_kwh:.2f} kWh")
         return estimated_kwh
 
     def _parse_period(self, period: str) -> int:
