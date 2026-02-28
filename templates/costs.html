@@ -104,8 +104,9 @@
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename='js/costs.js') }}"></script>
 <script>
-    const root = document.documentElement;
-    const primaryColor = getComputedStyle(root).getPropertyValue('--color-primary').trim();
+    // Get colors from CSS
+    const getColor = (name) => getComputedStyle(document.body).getPropertyValue(name).trim();
+    const primaryColor = getColor('--color-primary') || '#3b82f6';
 
     // Cost Projection Chart (Last 30 days)
     const projectionData = {{ data.projection_data | tojson if data and data.projection_data else '[]' }};
@@ -121,7 +122,8 @@
                     borderColor: primaryColor,
                     backgroundColor: primaryColor + '20',
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    borderWidth: 2
                 }]
             },
             options: {
@@ -133,6 +135,9 @@
                     }
                 },
                 scales: {
+                    x: {
+                        grid: { display: false }
+                    },
                     y: {
                         beginAtZero: true,
                         ticks: {

@@ -129,8 +129,9 @@
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename='js/device.js') }}"></script>
 <script>
-    const root = document.documentElement;
-    const primaryColor = getComputedStyle(root).getPropertyValue('--color-primary').trim();
+    // Get colors from CSS
+    const getColor = (name) => getComputedStyle(document.body).getPropertyValue(name).trim();
+    const primaryColor = getColor('--color-primary') || '#3b82f6';
 
     // 24-hour usage data
     const usageData = {{ device.usage_history | tojson if device and device.usage_history else '[]' }};
@@ -146,7 +147,8 @@
                     borderColor: primaryColor,
                     backgroundColor: primaryColor + '20',
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    borderWidth: 2
                 }]
             },
             options: {
@@ -158,6 +160,9 @@
                     }
                 },
                 scales: {
+                    x: {
+                        grid: { display: false }
+                    },
                     y: {
                         beginAtZero: true
                     }
