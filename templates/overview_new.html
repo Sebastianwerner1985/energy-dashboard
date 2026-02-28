@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Overview - Energy Dashboard{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <h1 class="page-title">Energy Overview</h1>
+    <p class="page-subtitle">Real-time snapshot of your energy consumption</p>
+</div>
+
+<!-- Stat Cards Grid -->
+<div class="stat-grid">
+    <!-- Total Power -->
+    <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-value">
+            {% if data and data.total_power %}
+                {{ "%.2f"|format(data.total_power) }}
+            {% else %}
+                0.00
+            {% endif %}
+        </div>
+        <div class="stat-label">Current Power (W)</div>
+    </div>
+
+    <!-- Daily Energy -->
+    <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value">
+            {% if data and data.daily_energy %}
+                {{ "%.2f"|format(data.daily_energy) }}
+            {% else %}
+                0.00
+            {% endif %}
+        </div>
+        <div class="stat-label">Today's Energy (kWh)</div>
+    </div>
+
+    <!-- Daily Cost -->
+    <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">
+            {% if data and data.daily_cost %}
+                {{ config.CURRENCY_SYMBOL }}{{ "%.2f"|format(data.daily_cost) }}
+            {% elif data and data.daily_energy and config %}
+                {{ config.CURRENCY_SYMBOL }}{{ "%.2f"|format(data.daily_energy * config.ELECTRICITY_RATE) }}
+            {% else %}
+                {{ config.CURRENCY_SYMBOL }}0.00
+            {% endif %}
+        </div>
+        <div class="stat-label">Today's Cost</div>
+    </div>
+
+    <!-- Active Devices -->
+    <div class="stat-card">
+        <div class="stat-icon">🔌</div>
+        <div class="stat-value">
+            {% if data and data.device_count %}
+                {{ data.device_count }}
+            {% else %}
+                0
+            {% endif %}
+        </div>
+        <div class="stat-label">Active Devices</div>
+    </div>
+</div>
+
+<!-- Power Usage Gauge -->
+<div class="main-card">
+    <div class="main-card-header">
+        <h2 class="main-card-title">Power Usage</h2>
+    </div>
+    <div style="padding: 20px;">
+        <div class="power-gauge-container">
+            {% set power = data.total_power if data and data.total_power else 0 %}
+            {% set max_power = 3000 %}
+            {% set percentage = (power / max_power * 100) if power < max_power else 100 %}
+            
+            <!-- SVG Gauge -->
+            <svg viewBox="0 0 200 120" style="width: 100%; max-width: 400px; height: auto; display: block; margin: 0 auto;">
+                <!-- Background arc -->
+                <path d="M 20 100 A 80 80 0 0 1 180 100" 
+                      fill="none" 
+                      stroke="var(--bg-muted)" 
+                      stroke-width="20"
+                      stroke-linecap="round"/>
+                
+                <!-- Value arc -->
+                <path d="M 20 100 A 80 80 0 0 1 180 100" 
+                      fill="none" 
+                      stroke="var(--color-primary)" 
+                      stroke-width="20"
+                      stroke-linecap="round"
+                      stroke-dasharray="{{ percentage * 2.51 }} 251"
+                      style="transition: stroke-dasharray 0.5s ease;"/>
+                
+                <!-- Center text -->
+                <text x="100" y="85" 
+                      text-anchor="middle" 
+                      font-size="28" 
+                      font-weight="bold" 
+                      fill="var(--text-primary)">{{ "%.0f"|format(power) }}</text>
+                <text x="100" y="105" 
+                      text-anchor="middle" 
+                      font-size="14" 
+                      fill="var(--text-muted)">Watts</text>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Navigation -->
+<div class="main-card">
+    <h2 class="main-card-title">Quick Access</h2>
+    <div class="quick-access-grid" style="margin-top: var(--space-4);">
+        <a href="{{ url_for('realtime') }}" class="quick-link">
+            <div class="quick-link-icon">⚡</div>
+            <div class="quick-link-content">
+                <div class="quick-link-title">Real-time Monitor</div>
+                <div class="quick-link-description">View current power usage</div>
+            </div>
+        </a>
+        <a href="{{ url_for('costs') }}" class="quick-link">
+            <div class="quick-link-icon">💰</div>
+            <div class="quick-link-content">
+                <div class="quick-link-title">Cost Analysis</div>
+                <div class="quick-link-description">Analyze energy costs</div>
+            </div>
+        </a>
+        <a href="{{ url_for('history') }}" class="quick-link">
+            <div class="quick-link-icon">📈</div>
+            <div class="quick-link-content">
+                <div class="quick-link-title">Historical Trends</div>
+                <div class="quick-link-description">View usage patterns</div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

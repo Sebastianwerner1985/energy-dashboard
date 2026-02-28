@@ -62,7 +62,7 @@
         <h2 class="main-card-title">Power by Room</h2>
     </div>
     <div class="chart-container">
-        <canvas id="roomPieChart" style="max-height: 300px;"></canvas>
+        <div id="roomPieChart" style="width: 100%; height: 300px;"></div>
     </div>
 </div>
 
@@ -72,7 +72,7 @@
         <h2 class="main-card-title">Top Power Consumers</h2>
     </div>
     <div class="chart-container">
-        <canvas id="deviceBarChart" style="max-height: 400px;"></canvas>
+        <div id="deviceBarChart" style="width: 100%; height: 400px;"></div>
     </div>
 </div>
 
@@ -143,94 +143,107 @@
 
     // Room Pie Chart
     if (roomData.length > 0) {
-        const roomLabels = roomData.map(r => r.name);
-        const roomValues = roomData.map(r => r.power);
+        const roomChart = echarts.init(document.getElementById('roomPieChart'));
+        const roomChartData = roomData.map((r, i) => ({
+            name: r.name,
+            value: r.power,
+            itemStyle: { color: chartColors[i % chartColors.length] }
+        }));
 
-        new Chart(document.getElementById('roomPieChart'), {
-            type: 'pie',
-            data: {
-                labels: roomLabels,
-                datasets: [{
-                    data: roomValues,
-                    backgroundColor: chartColors,
-                    borderWidth: 2,
-                    borderColor: getComputedStyle(root).getPropertyValue('--bg-surface').trim()
-                }]
+        const roomOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{b}: {c} W ({d}%)'
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                aspectRatio: 1.5,
-                layout: {
-                    padding: {
-                        top: 10,
-                        bottom: 10,
-                        left: 10,
-                        right: 10
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: window.innerWidth <= 768 ? 'bottom' : 'right',
-                        labels: {
-                            padding: 8,
-                            boxWidth: 12
-                        }
-                    }
+            legend: {
+                orient: window.innerWidth <= 768 ? 'horizontal' : 'vertical',
+                left: window.innerWidth <= 768 ? 'center' : 'right',
+                top: window.innerWidth <= 768 ? 'bottom' : 'middle',
+                textStyle: {
+                    color: 'var(--text-primary)'
                 }
-            }
-        });
+            },
+            series: [{
+                name: 'Room Power',
+                type: 'pie',
+                radius: ['40%', '70%'],
+                center: ['50%', '50%'],
+                avoidLabelOverlap: false,
+                label: {
+                    show: false
+                },
+                labelLine: {
+                    show: false
+                },
+                data: roomChartData
+            }]
+        };
+
+        roomChart.setOption(roomOption);
+        window.addEventListener('resize', () => roomChart.resize());
     }
 
     // Device Bar Chart (Top 10)
     if (deviceData.length > 0) {
+        const deviceChart = echarts.init(document.getElementById('deviceBarChart'));
         const sortedDevices = deviceData.sort((a, b) => b.power - a.power).slice(0, 10);
         const deviceLabels = sortedDevices.map(d => d.name);
         const deviceValues = sortedDevices.map(d => d.power);
 
-        new Chart(document.getElementById('deviceBarChart'), {
-            type: 'bar',
-            data: {
-                labels: deviceLabels,
-                datasets: [{
-                    label: 'Power (W)',
-                    data: deviceValues,
-                    backgroundColor: chartColors[0],
-                    borderRadius: 4
-                }]
+        const deviceOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: '{b}: {c} W'
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y',
-                layout: {
-                    padding: {
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        bottom: 0
-                    }
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                top: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                axisLabel: {
+                    color: 'var(--text-muted)',
+                    formatter: '{value} W'
                 },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        ticks: {
-                            padding: 5
-                        }
-                    },
-                    y: {
-                        ticks: {
-                            padding: 5
-                        }
+                splitLine: {
+                    lineStyle: {
+                        color: 'var(--border-color)'
                     }
                 }
-            }
-        });
+            },
+            yAxis: {
+                type: 'category',
+                data: deviceLabels,
+                axisLabel: {
+                    color: 'var(--text-primary)'
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLine: {
+                    show: false
+                }
+            },
+            series: [{
+                name: 'Power',
+                type: 'bar',
+                data: deviceValues,
+                itemStyle: {
+                    color: chartColors[0],
+                    borderRadius: [0, 4, 4, 0]
+                },
+                barMaxWidth: 30
+            }]
+        };
+
+        deviceChart.setOption(deviceOption);
+        window.addEventListener('resize', () => deviceChart.resize());
     }
 
     // Start auto-refresh

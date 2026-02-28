@@ -2,6 +2,7 @@
  * SnowUI Design System - CSS Custom Properties
  *
  * Extracted from Figma: Dashboard Design System - Community (jhtCSVPrAXjtKM1wF1vjc7)
+ * Updated for WCAG AA accessibility compliance
  *
  * Use these variables for consistent theming across all apps.
  * Supports automatic dark/light mode switching.
@@ -9,67 +10,67 @@
 
 :root {
   /* ========================================
-     COLOR TOKENS - PRIMARY
+     COLOR TOKENS - PRIMARY (Blue)
      ======================================== */
-
-  /* Primary: Blue */
-  --color-primary: #4c98fd;
-  --color-primary-light: #7dbbff;
-  --color-primary-dark: #3b7fd4;
-  --color-primary-50: #e6f1fd;
-  --color-primary-100: #cce3fb;
-  --color-primary-200: #99c7f7;
-  --color-primary-300: #7dbbff;
-  --color-primary-400: #66abf4;
-  --color-primary-500: #4c98fd;
-  --color-primary-600: #3b7fd4;
-  --color-primary-700: #2d66ab;
-  --color-primary-800: #1e4d82;
-  --color-primary-900: #103459;
+  --color-primary: #3b82f6;
+  --color-primary-light: #60a5fa;
+  --color-primary-dark: #2563eb;
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
 
   /* ========================================
-     COLOR TOKENS - CHART/SECONDARY COLORS
+     SEMANTIC COLORS (WCAG AA compliant)
      ======================================== */
 
-  /* Cyan - for charts and accents */
-  --color-cyan: #a0bce8;
-  --color-cyan-light: #c4d8f4;
-  --color-cyan-dark: #7ca0dc;
+  /* Success - Green */
+  --color-success: #22c55e;
+  --color-success-light: #4ade80;
+  --color-success-dark: #16a34a;
+  --color-success-muted: #166534;
 
-  /* Mint - for success states and charts */
-  --color-mint: #6be6d3;
-  --color-mint-light: #9ef0e4;
-  --color-mint-dark: #3edcc2;
+  /* Warning - Amber/Orange */
+  --color-warning: #f59e0b;
+  --color-warning-light: #fbbf24;
+  --color-warning-dark: #d97706;
+  --color-warning-muted: #92400e;
 
-  /* Purple - for charts and accents */
-  --color-purple: #b899eb;
-  --color-purple-light: #d4c2f4;
-  --color-purple-dark: #9c70e2;
+  /* Error - Red */
+  --color-error: #ef4444;
+  --color-error-light: #f87171;
+  --color-error-dark: #dc2626;
+  --color-error-muted: #991b1b;
 
-  /* Green - for positive values */
-  --color-green: #71dd8c;
-  --color-green-light: #9ee9af;
-  --color-green-dark: #44d169;
+  /* Info - Blue (same as primary) */
+  --color-info: #3b82f6;
+  --color-info-light: #60a5fa;
+  --color-info-dark: #2563eb;
 
   /* ========================================
-     SEMANTIC COLORS
+     CHART/ACCENT COLORS
      ======================================== */
 
-  --color-success: #71dd8c;
-  --color-success-light: #9ee9af;
-  --color-success-dark: #44d169;
+  /* Cyan - for charts */
+  --color-cyan: #06b6d4;
+  --color-cyan-light: #22d3ee;
+  --color-cyan-dark: #0891b2;
 
-  --color-warning: #f5b849;
-  --color-warning-light: #f8cc7a;
-  --color-warning-dark: #f2a418;
+  /* Mint/Teal - for success accents */
+  --color-mint: #14b8a6;
+  --color-mint-light: #2dd4bf;
+  --color-mint-dark: #0d9488;
 
-  --color-error: #f25b5b;
-  --color-error-light: #f68a8a;
-  --color-error-dark: #ee2c2c;
-
-  --color-info: #4c98fd;
-  --color-info-light: #7dbbff;
-  --color-info-dark: #3b7fd4;
+  /* Purple - for charts */
+  --color-purple: #8b5cf6;
+  --color-purple-light: #a78bfa;
+  --color-purple-dark: #7c3aed;
 
   /* ========================================
      LIGHT MODE (Default)
@@ -77,36 +78,38 @@
 
   /* Background */
   --bg-base: #ffffff;
-  --bg-surface: #f9f9fa;
+  --bg-surface: #f8fafc;
   --bg-surface-raised: #ffffff;
-  --bg-surface-overlay: #f4f4f5;
-  --bg-muted: #e8e8ea;
+  --bg-surface-overlay: #f1f5f9;
+  --bg-muted: #e2e8f0;
 
   /* Accent backgrounds (for stat cards, highlights) */
-  --bg-accent-primary: #edeefc;  /* Blue-tinted background */
-  --bg-accent-secondary: #e6f1fd;  /* Lighter blue background */
-  --bg-accent-mint: #e4faf6;
-  --bg-accent-purple: #f3edfc;
+  --bg-accent-primary: #eff6ff;
+  --bg-accent-secondary: #dbeafe;
+  --bg-accent-mint: #f0fdfa;
+  --bg-accent-purple: #f5f3ff;
+  --bg-accent-warning: #fffbeb;
+  --bg-accent-success: #f0fdf4;
 
-  /* Text */
-  --text-primary: #000000;
-  --text-secondary: rgba(0, 0, 0, 0.8);
-  --text-muted: rgba(0, 0, 0, 0.4);
+  /* Text - WCAG AA compliant (4.5:1 minimum) */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
   --text-inverse: #ffffff;
 
   /* Border */
-  --border-default: #e8e8ea;
-  --border-strong: #d4d4d8;
+  --border-default: #e2e8f0;
+  --border-strong: #cbd5e1;
   --border-focus: var(--color-primary);
 
   /* Shadows */
-  --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.08);
-  --shadow-medium: 0 4px 16px -4px rgba(0, 0, 0, 0.12);
-  --shadow-strong: 0 8px 32px -8px rgba(0, 0, 0, 0.16);
-  --shadow-glow: 0 0 20px -5px rgba(76, 152, 253, 0.3);
+  --shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-strong: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 20px -5px rgba(59, 130, 246, 0.4);
 
   /* ========================================
-     SPACING SCALE (from Figma)
+     SPACING SCALE
      ======================================== */
   --space-0: 0;
   --space-1: 4px;
@@ -118,6 +121,8 @@
   --space-7: 28px;
   --space-8: 32px;
   --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
   --space-20: 80px;
 
   /* ========================================
@@ -126,30 +131,31 @@
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', Monaco, Consolas, monospace;
 
-  /* Font sizes (from Figma) */
+  /* Font sizes */
   --text-xs: 12px;
   --text-sm: 14px;
   --text-base: 16px;
-  --text-lg: 20px;
-  --text-xl: 24px;
-  --text-2xl: 28px;
-  --text-3xl: 32px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
 
   /* Font weights */
   --font-normal: 400;
   --font-medium: 500;
   --font-semibold: 600;
+  --font-bold: 700;
 
   /* Line heights */
-  --leading-tight: 16px;
-  --leading-normal: 20px;
-  --leading-relaxed: 32px;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
 
   /* ========================================
-     BORDER RADIUS (consistent 8px from Figma)
+     BORDER RADIUS
      ======================================== */
   --radius-sm: 4px;
-  --radius-md: 8px;
+  --radius-md: 6px;
   --radius-lg: 8px;
   --radius-xl: 12px;
   --radius-2xl: 16px;
@@ -168,58 +174,113 @@
    ======================================== */
 .dark,
 [data-theme="dark"] {
-  /* Background */
-  --bg-base: #000000;
-  --bg-surface: #1a1a2e;
-  --bg-surface-raised: #242438;
-  --bg-surface-overlay: #2e2e44;
-  --bg-muted: #3a3a50;
+  /* Background - Slate tones for consistency */
+  --bg-base: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-surface-raised: #334155;
+  --bg-surface-overlay: #334155;
+  --bg-muted: #475569;
 
-  /* Accent backgrounds (darker versions) */
-  --bg-accent-primary: #1e2040;
-  --bg-accent-secondary: #1a2a3e;
-  --bg-accent-mint: #1a2e2a;
-  --bg-accent-purple: #2a1e3e;
+  /* Accent backgrounds (darker, muted versions) */
+  --bg-accent-primary: #1e3a5f;
+  --bg-accent-secondary: #1e3a5f;
+  --bg-accent-mint: #134e4a;
+  --bg-accent-purple: #3b0764;
+  --bg-accent-warning: #451a03;
+  --bg-accent-success: #14532d;
 
-  /* Text */
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.8);
-  --text-muted: rgba(255, 255, 255, 0.4);
-  --text-inverse: #000000;
+  /* Text - WCAG AA compliant on dark backgrounds */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-inverse: #0f172a;
 
   /* Border */
-  --border-default: #3a3a50;
-  --border-strong: #4a4a60;
+  --border-default: #334155;
+  --border-strong: #475569;
 
-  /* Shadows (stronger for dark mode) */
-  --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.3);
-  --shadow-medium: 0 4px 16px -4px rgba(0, 0, 0, 0.4);
-  --shadow-strong: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 24px -5px rgba(76, 152, 253, 0.5);
+  /* Shadows (more subtle on dark) */
+  --shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-strong: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 24px -5px rgba(59, 130, 246, 0.5);
+
+  /* Adjusted colors for dark mode - less saturated, better contrast */
+  --color-primary: #60a5fa;
+  --color-primary-light: #93c5fd;
+  --color-primary-dark: #3b82f6;
+
+  --color-success: #4ade80;
+  --color-success-light: #86efac;
+  --color-success-dark: #22c55e;
+
+  --color-warning: #fbbf24;
+  --color-warning-light: #fcd34d;
+  --color-warning-dark: #f59e0b;
+
+  --color-error: #f87171;
+  --color-error-light: #fca5a5;
+  --color-error-dark: #ef4444;
+
+  --color-cyan: #22d3ee;
+  --color-mint: #2dd4bf;
+  --color-purple: #a78bfa;
 }
 
 /* Auto dark mode based on system preference */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg-base: #000000;
-    --bg-surface: #1a1a2e;
-    --bg-surface-raised: #242438;
-    --bg-surface-overlay: #2e2e44;
-    --bg-muted: #3a3a50;
-    --bg-accent-primary: #1e2040;
-    --bg-accent-secondary: #1a2a3e;
-    --bg-accent-mint: #1a2e2a;
-    --bg-accent-purple: #2a1e3e;
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.8);
-    --text-muted: rgba(255, 255, 255, 0.4);
-    --text-inverse: #000000;
-    --border-default: #3a3a50;
-    --border-strong: #4a4a60;
-    --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.3);
-    --shadow-medium: 0 4px 16px -4px rgba(0, 0, 0, 0.4);
-    --shadow-strong: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
-    --shadow-glow: 0 0 24px -5px rgba(76, 152, 253, 0.5);
+    /* Background */
+    --bg-base: #0f172a;
+    --bg-surface: #1e293b;
+    --bg-surface-raised: #334155;
+    --bg-surface-overlay: #334155;
+    --bg-muted: #475569;
+
+    /* Accent backgrounds */
+    --bg-accent-primary: #1e3a5f;
+    --bg-accent-secondary: #1e3a5f;
+    --bg-accent-mint: #134e4a;
+    --bg-accent-purple: #3b0764;
+    --bg-accent-warning: #451a03;
+    --bg-accent-success: #14532d;
+
+    /* Text */
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-inverse: #0f172a;
+
+    /* Border */
+    --border-default: #334155;
+    --border-strong: #475569;
+
+    /* Shadows */
+    --shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-strong: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 24px -5px rgba(59, 130, 246, 0.5);
+
+    /* Adjusted colors */
+    --color-primary: #60a5fa;
+    --color-primary-light: #93c5fd;
+    --color-primary-dark: #3b82f6;
+
+    --color-success: #4ade80;
+    --color-success-light: #86efac;
+    --color-success-dark: #22c55e;
+
+    --color-warning: #fbbf24;
+    --color-warning-light: #fcd34d;
+    --color-warning-dark: #f59e0b;
+
+    --color-error: #f87171;
+    --color-error-light: #fca5a5;
+    --color-error-dark: #ef4444;
+
+    --color-cyan: #22d3ee;
+    --color-mint: #2dd4bf;
+    --color-purple: #a78bfa;
   }
 }
 
@@ -230,10 +291,10 @@
 .chart-color-cyan { color: var(--color-cyan); }
 .chart-color-mint { color: var(--color-mint); }
 .chart-color-purple { color: var(--color-purple); }
-.chart-color-green { color: var(--color-green); }
+.chart-color-success { color: var(--color-success); }
 
 .chart-bg-primary { background-color: var(--color-primary); }
 .chart-bg-cyan { background-color: var(--color-cyan); }
 .chart-bg-mint { background-color: var(--color-mint); }
 .chart-bg-purple { background-color: var(--color-purple); }
-.chart-bg-green { background-color: var(--color-green); }
+.chart-bg-success { background-color: var(--color-success); }

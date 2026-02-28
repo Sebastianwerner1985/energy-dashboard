@@ -22,7 +22,7 @@
         </div>
     </div>
     <div class="chart-container">
-        <canvas id="costProjectionChart" style="max-height: 300px;"></canvas>
+        <div id="costProjectionChart" style="width: 100%; height: 300px;"></div>
     </div>
 </div>
 
@@ -111,50 +111,77 @@
     const projectionData = {{ data.projection_data | tojson if data and data.projection_data else '[]' }};
 
     if (projectionData.length > 0) {
-        new Chart(document.getElementById('costProjectionChart'), {
-            type: 'line',
-            data: {
-                labels: projectionData.map(d => d.date),
-                datasets: [{
-                    label: 'Daily Cost ({{ config.CURRENCY_SYMBOL }})',
-                    data: projectionData.map(d => d.cost),
-                    borderColor: primaryColor,
-                    backgroundColor: primaryColor + '20',
-                    fill: true,
-                    tension: 0.4
-                }]
+        const costChart = echarts.init(document.getElementById('costProjectionChart'));
+
+        const costOption = {
+            tooltip: {
+                trigger: 'axis',
+                formatter: function(params) {
+                    return params[0].name + '<br/>' +
+                           params[0].seriesName + ': {{ config.CURRENCY_SYMBOL }}' +
+                           params[0].value.toFixed(2);
+                }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: 0
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                top: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: projectionData.map(d => d.date),
+                axisLabel: {
+                    color: 'var(--text-muted)',
+                    rotate: 45
                 },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            padding: 5,
-                            callback: function(value) {
-                                return '{{ config.CURRENCY_SYMBOL }}' + value.toFixed(2);
-                            }
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            padding: 5,
-                            maxRotation: 45,
-                            minRotation: 45
-                        }
+                axisLine: {
+                    lineStyle: {
+                        color: 'var(--border-color)'
                     }
                 }
-            }
-        });
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    color: 'var(--text-muted)',
+                    formatter: '{{ config.CURRENCY_SYMBOL }}{value}'
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: 'var(--border-color)'
+                    }
+                }
+            },
+            series: [{
+                name: 'Daily Cost',
+                type: 'line',
+                data: projectionData.map(d => d.cost),
+                smooth: true,
+                lineStyle: {
+                    color: primaryColor,
+                    width: 2
+                },
+                areaStyle: {
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: primaryColor + '40' },
+                            { offset: 1, color: primaryColor + '10' }
+                        ]
+                    }
+                },
+                itemStyle: {
+                    color: primaryColor
+                }
+            }]
+        };
+
+        costChart.setOption(costOption);
+        window.addEventListener('resize', () => costChart.resize());
     }
 </script>
 {% endblock %}
