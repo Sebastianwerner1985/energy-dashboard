@@ -243,7 +243,7 @@
 .main-card {
     background-color: var(--bg-surface);
     border-radius: var(--radius-xl);
-    padding: var(--space-6);
+    padding: var(--space-4);
     box-shadow: var(--shadow-sm);
     margin-bottom: var(--space-6);
 }
@@ -252,7 +252,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-3);
 }
 
 .main-card-title {
@@ -320,13 +320,13 @@ tbody tr:last-child td {
 
 .chart-container {
     position: relative;
-    margin: var(--space-2) 0;
+    margin: 0;
 }
 
 .chart-wrapper {
     background-color: var(--bg-surface);
     border-radius: var(--radius-lg);
-    padding: var(--space-3);
+    padding: var(--space-2);
     box-shadow: var(--shadow-sm);
 }
 
