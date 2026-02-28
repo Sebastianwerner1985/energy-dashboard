@@ -6,6 +6,7 @@ from services.home_assistant import HomeAssistantClient
 from services.data_processor import DataProcessor
 from utils.logger import setup_logger
 import config
+import os
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -86,8 +87,38 @@ def settings():
     if request.method == 'POST':
         # Handle settings update
         try:
-            # TODO: Implement settings persistence
-            return jsonify({'success': True, 'message': 'Settings updated'})
+            # Get form data
+            electricity_rate = request.form.get('electricity_rate')
+            currency = request.form.get('currency')
+            cache_ttl = request.form.get('cache_ttl')
+
+            # Read current .env file
+            env_path = os.path.join(os.path.dirname(__file__), '.env')
+            env_vars = {}
+
+            if os.path.exists(env_path):
+                with open(env_path, 'r') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#') and '=' in line:
+                            key, value = line.split('=', 1)
+                            env_vars[key] = value
+
+            # Update values
+            if electricity_rate:
+                env_vars['ELECTRICITY_RATE'] = electricity_rate
+            if currency:
+                env_vars['CURRENCY_SYMBOL'] = currency
+            if cache_ttl:
+                env_vars['CACHE_TTL'] = cache_ttl
+
+            # Write back to .env
+            with open(env_path, 'w') as f:
+                for key, value in env_vars.items():
+                    f.write(f"{key}={value}\n")
+
+            logger.info("Settings updated successfully")
+            return jsonify({'success': True, 'message': 'Settings saved! Restart service to apply changes.'})
         except Exception as e:
             logger.error(f"Error updating settings: {e}")
             return jsonify({'success': False, 'error': str(e)}), 500

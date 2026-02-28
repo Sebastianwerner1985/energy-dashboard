@@ -49,7 +49,7 @@
 <!-- Energy Configuration -->
 <div class="main-card">
     <h2 class="main-card-title">Energy Configuration</h2>
-    <form method="POST" style="margin-top: var(--space-4);">
+    <form id="settingsForm" method="POST" style="margin-top: var(--space-4);">
         <div class="form-group">
             <label for="electricity_rate" class="form-label">
                 Electricity Rate (€/kWh)
@@ -58,7 +58,7 @@
                 type="number"
                 id="electricity_rate"
                 name="electricity_rate"
-                value="{{ config.ELECTRICITY_RATE if config else '0.12' }}"
+                value="{{ config.ELECTRICITY_RATE if config else '0.26' }}"
                 step="0.01"
                 min="0"
                 class="form-input"
@@ -73,18 +73,12 @@
                 type="text"
                 id="currency"
                 name="currency"
-                value="{{ config.CURRENCY if config else '$' }}"
+                value="{{ config.CURRENCY_SYMBOL if config else '€' }}"
                 maxlength="3"
                 class="form-input"
             >
         </div>
-    </form>
-</div>
 
-<!-- Cache Configuration -->
-<div class="main-card">
-    <h2 class="main-card-title">Cache Configuration</h2>
-    <form method="POST" style="margin-top: var(--space-4);">
         <div class="form-group">
             <label for="cache_ttl" class="form-label">
                 Cache TTL (seconds)
@@ -93,27 +87,30 @@
                 type="number"
                 id="cache_ttl"
                 name="cache_ttl"
-                value="{{ config.CACHE_TTL if config else '60' }}"
-                min="10"
+                value="{{ config.CACHE_TTL if config else '300' }}"
+                min="60"
                 max="3600"
                 class="form-input"
             >
             <small style="display: block; margin-top: var(--space-2); color: var(--text-muted); font-size: var(--text-xs);">
-                How long to cache data before refreshing (10-3600 seconds)
+                How long to cache data before refreshing (60-3600 seconds). Higher = faster but less fresh data.
             </small>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                Save Settings
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="testConnection()">
+                Test Connection
+            </button>
         </div>
     </form>
 </div>
 
-<!-- Action Buttons -->
-<div class="form-actions">
-    <button type="submit" class="btn btn-primary">
-        Save Settings
-    </button>
-    <button type="button" class="btn btn-secondary" onclick="testConnection()">
-        Test Connection
-    </button>
-</div>
+<!-- Save Result Alert -->
+<div id="saveResult" style="margin-top: var(--space-4); display: none;"></div>
 
 <!-- Test Result Alert -->
 <div id="testResult" style="margin-top: var(--space-4); display: none;"></div>
@@ -121,6 +118,67 @@
 
 {% block extra_scripts %}
 <script>
+    // Handle form submission
+    document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const saveResultDiv = document.getElementById('saveResult');
+        saveResultDiv.style.display = 'block';
+        saveResultDiv.innerHTML = `
+            <div class="alert alert-info">
+                <span class="alert-icon">⏳</span>
+                <div class="alert-content">
+                    <div class="alert-title">Saving settings...</div>
+                </div>
+            </div>
+        `;
+
+        try {
+            const formData = new FormData(e.target);
+            const response = await fetch('/settings', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                saveResultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✅</span>
+                        <div class="alert-content">
+                            <div class="alert-title">Settings saved!</div>
+                            <div>${data.message}</div>
+                        </div>
+                    </div>
+                `;
+
+                // Reload page after 2 seconds to show new values
+                setTimeout(() => window.location.reload(), 2000);
+            } else {
+                saveResultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <div class="alert-content">
+                            <div class="alert-title">Save failed</div>
+                            <div>${data.error || 'Unable to save settings'}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            saveResultDiv.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <div class="alert-content">
+                        <div class="alert-title">Save failed</div>
+                        <div>${error.message}</div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
     async function testConnection() {
         const resultDiv = document.getElementById('testResult');
         resultDiv.style.display = 'block';
