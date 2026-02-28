@@ -2,15 +2,8 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}Energy Dashboard{% endblock %}</title>
-
-    <!-- iOS Web App Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Energy">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon.svg') }}">
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='icons/icon.svg') }}">
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,19 +15,15 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/snowui-components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 
-    <!-- Apache ECharts -->
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <!-- Mobile Menu Toggle Button -->
+    <!-- Mobile Menu Toggle -->
     <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
+        <span>☰</span>
     </button>
 
     <div class="app-container">
@@ -49,13 +38,8 @@
                 </div>
             </div>
 
-            <!-- Sidebar Navigation -->
+            <!-- Navigation -->
             <nav class="sidebar-nav">
-                <a href="http://192.168.178.100:8080" class="nav-link">
-                    <span class="nav-icon">🏠</span>
-                    <span class="nav-text">Home</span>
-                </a>
-                <div class="nav-divider"></div>
                 <a href="{{ url_for('overview') }}" class="nav-link {% if request.endpoint == 'overview' %}active{% endif %}">
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Overview</span>
@@ -78,29 +62,16 @@
                 </a>
             </nav>
 
-            <!-- Sidebar Footer with Theme Toggle -->
+            <!-- Theme Toggle -->
             <div class="sidebar-footer">
-                <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggleBtn">
-                    <svg id="theme-icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                    <svg id="theme-icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <span id="theme-text">Light Mode</span>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <span id="themeIcon">🌙</span>
+                    <span id="themeText">Dark Mode</span>
                 </button>
             </div>
         </aside>
 
-        <!-- Main Content Area -->
+        <!-- Main Content -->
         <main class="main-content">
             {% block content %}{% endblock %}
         </main>
@@ -109,75 +80,79 @@
     <!-- Mobile Menu Backdrop -->
     <div class="mobile-backdrop" id="mobileBackdrop"></div>
 
-    <!-- JavaScript for Theme Management and Mobile Menu -->
+    <!-- Base JavaScript -->
     <script>
         // Theme Management
-        const html = document.documentElement;
-        const themeIconSun = document.getElementById('theme-icon-sun');
-        const themeIconMoon = document.getElementById('theme-icon-moon');
-        const themeText = document.getElementById('theme-text');
-
-        // Initialize theme from localStorage (default to dark)
         function initTheme() {
             const savedTheme = localStorage.getItem('theme') || 'dark';
-            html.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-theme', savedTheme);
             updateThemeUI(savedTheme);
         }
 
         function toggleTheme() {
+            const html = document.documentElement;
             const currentTheme = html.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
             html.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateThemeUI(newTheme);
-
-            // Update charts if they exist
-            if (typeof updateChartTheme === 'function') {
-                updateChartTheme(newTheme);
-            }
+            updateChartTheme(newTheme);
         }
 
         function updateThemeUI(theme) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
             if (theme === 'dark') {
-                themeIconSun.style.display = 'none';
-                themeIconMoon.style.display = 'block';
-                themeText.textContent = 'Light Mode';
+                icon.textContent = '🌙';
+                text.textContent = 'Dark Mode';
             } else {
-                themeIconSun.style.display = 'block';
-                themeIconMoon.style.display = 'none';
-                themeText.textContent = 'Dark Mode';
+                icon.textContent = '☀️';
+                text.textContent = 'Light Mode';
             }
         }
 
-        // Initialize theme on page load
-        initTheme();
+        function updateChartTheme(theme) {
+            // Update Chart.js defaults
+            if (typeof Chart !== 'undefined') {
+                const root = document.documentElement;
+                const textColor = getComputedStyle(root).getPropertyValue('--text-secondary').trim();
+                const borderColor = getComputedStyle(root).getPropertyValue('--border-default').trim();
 
-        // Mobile Menu Toggle
-        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-        const sidebar = document.getElementById('sidebar');
-        const mobileBackdrop = document.getElementById('mobileBackdrop');
+                Chart.defaults.color = textColor;
+                Chart.defaults.borderColor = borderColor;
 
-        function toggleMobileMenu() {
-            sidebar.classList.toggle('mobile-open');
-            mobileBackdrop.classList.toggle('active');
+                // Trigger redraw of all charts
+                Chart.instances.forEach(chart => {
+                    chart.update('none');
+                });
+            }
         }
 
-        function closeMobileMenu() {
-            sidebar.classList.remove('mobile-open');
-            mobileBackdrop.classList.remove('active');
+        // Mobile Menu Management
+        function initMobileMenu() {
+            const toggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('mobileBackdrop');
+
+            toggle.addEventListener('click', () => {
+                sidebar.classList.add('mobile-open');
+                backdrop.classList.add('active');
+            });
+
+            backdrop.addEventListener('click', () => {
+                sidebar.classList.remove('mobile-open');
+                backdrop.classList.remove('active');
+            });
         }
 
-        if (mobileMenuToggle) {
-            mobileMenuToggle.addEventListener('click', toggleMobileMenu);
-        }
-
-        if (mobileBackdrop) {
-            mobileBackdrop.addEventListener('click', closeMobileMenu);
-        }
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            initMobileMenu();
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+        });
     </script>
 
-    <!-- Page-specific Scripts -->
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>
