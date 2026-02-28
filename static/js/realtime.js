@@ -62,7 +62,19 @@ function updateDeviceTable(devices) {
     const tbody = document.getElementById('deviceTableBody');
     if (!tbody || !devices) return;
 
-    tbody.innerHTML = devices.map(device => `
+    // Sort devices: active devices by power (high to low), then idle devices
+    const sortedDevices = devices.sort((a, b) => {
+        // Both idle or both active - sort by power
+        if ((a.power === 0 && b.power === 0) || (a.power > 0 && b.power > 0)) {
+            return b.power - a.power; // High to low
+        }
+        // Active devices come before idle
+        if (a.power > 0 && b.power === 0) return -1;
+        if (a.power === 0 && b.power > 0) return 1;
+        return 0;
+    });
+
+    tbody.innerHTML = sortedDevices.map(device => `
         <tr>
             <td>${device.name}</td>
             <td>${device.room || 'Unknown'}</td>
