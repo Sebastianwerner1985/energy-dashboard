@@ -320,13 +320,13 @@ tbody tr:last-child td {
 
 .chart-container {
     position: relative;
-    margin: var(--space-4) 0;
+    margin: var(--space-2) 0;
 }
 
 .chart-wrapper {
     background-color: var(--bg-surface);
     border-radius: var(--radius-lg);
-    padding: var(--space-5);
+    padding: var(--space-3);
     box-shadow: var(--shadow-sm);
 }
 

@@ -47,7 +47,7 @@
         <h2 class="main-card-title">Power Usage Trends</h2>
     </div>
     <div class="chart-container">
-        <canvas id="trendsChart" style="max-height: 400px;"></canvas>
+        <canvas id="trendsChart" style="max-height: 300px;"></canvas>
     </div>
 </div>
 
@@ -135,7 +135,10 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: 10
+                },
                 plugins: {
                     legend: {
                         display: false
@@ -143,7 +146,19 @@
                 },
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: {
+                            padding: 5
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            padding: 5,
+                            maxRotation: 45,
+                            minRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 10
+                        }
                     }
                 }
             }
