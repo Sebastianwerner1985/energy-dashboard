@@ -72,7 +72,7 @@
         <h2 class="main-card-title">Power Usage</h2>
     </div>
     <div class="chart-container">
-        <canvas id="powerGaugeChart" style="max-height: 250px;"></canvas>
+        <canvas id="powerGaugeChart" style="max-height: 200px;"></canvas>
     </div>
 </div>
 
@@ -129,10 +129,13 @@
         data: gaugeData,
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             circumference: 180,
             rotation: 270,
             cutout: '75%',
+            layout: {
+                padding: 5
+            },
             plugins: {
                 legend: {
                     display: false
