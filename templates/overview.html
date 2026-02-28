@@ -130,11 +130,17 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            aspectRatio: 2,
             circumference: 180,
             rotation: 270,
             cutout: '75%',
             layout: {
-                padding: 0
+                padding: {
+                    top: 0,
+                    bottom: -50,
+                    left: 0,
+                    right: 0
+                }
             },
             plugins: {
                 legend: {
