@@ -156,18 +156,20 @@
                 formatter: '{b}: {c} W ({d}%)'
             },
             legend: {
-                orient: window.innerWidth <= 768 ? 'horizontal' : 'vertical',
-                left: window.innerWidth <= 768 ? 'center' : 'right',
-                top: window.innerWidth <= 768 ? 'bottom' : 'middle',
+                orient: 'vertical',
+                right: 10,
+                top: 'center',
                 textStyle: {
-                    color: 'var(--text-primary)'
-                }
+                    color: 'var(--text-primary)',
+                    fontSize: 11
+                },
+                itemGap: 8
             },
             series: [{
                 name: 'Room Power',
                 type: 'pie',
-                radius: ['40%', '70%'],
-                center: ['50%', '50%'],
+                radius: ['45%', '75%'],
+                center: ['35%', '50%'],
                 avoidLabelOverlap: false,
                 label: {
                     show: false

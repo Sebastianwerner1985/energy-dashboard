@@ -243,16 +243,18 @@
 .main-card {
     background-color: var(--bg-surface);
     border-radius: var(--radius-xl);
-    padding: var(--space-1);
+    padding: 0;
     box-shadow: var(--shadow-sm);
     margin-bottom: var(--space-2);
+    overflow: hidden;
 }
 
 .main-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-1);
+    margin-bottom: 0;
+    padding: var(--space-2);
 }
 
 .main-card-title {
