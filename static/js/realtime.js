@@ -19,39 +19,8 @@ async function refreshData() {
         const response = await fetch('/api/realtime');
         const data = await response.json();
 
-        // Update total power
-        if (data.total_power !== undefined) {
-            const totalPowerEl = document.getElementById('totalPower');
-            if (totalPowerEl) {
-                totalPowerEl.textContent = data.total_power.toFixed(1);
-            }
-        }
-
-        // Update tracked power
-        if (data.tracked_power !== undefined) {
-            const trackedPowerEl = document.getElementById('trackedPower');
-            if (trackedPowerEl) {
-                trackedPowerEl.textContent = data.tracked_power.toFixed(1);
-            }
-        }
-
-        // Update untracked power
-        if (data.untracked_power !== undefined) {
-            const untrackedPowerEl = document.getElementById('untrackedPower');
-            if (untrackedPowerEl) {
-                untrackedPowerEl.textContent = data.untracked_power.toFixed(1);
-            }
-        }
-
-        // Update device table
-        if (data.devices) {
+        if (data.success) {
             updateDeviceTable(data.devices);
-        }
-
-        // Update timestamp
-        const timestampEl = document.getElementById('lastUpdate');
-        if (timestampEl) {
-            timestampEl.textContent = new Date().toLocaleTimeString();
         }
     } catch (error) {
         console.error('Failed to refresh data:', error);

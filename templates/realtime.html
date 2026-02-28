@@ -17,52 +17,13 @@
     </div>
 </div>
 
-<!-- Power Summary -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6);">
-    <div class="stat-card">
-        <div class="stat-icon">⚡</div>
-        <div class="stat-value" id="totalPower">
-            {% if data and data.total_power %}
-                {{ "%.1f"|format(data.total_power) }}
-            {% else %}
-                0.0
-            {% endif %}
-        </div>
-        <div class="stat-label">Total Power (W)</div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon">📦</div>
-        <div class="stat-value" id="trackedPower">
-            {% if data and data.tracked_power %}
-                {{ "%.1f"|format(data.tracked_power) }}
-            {% else %}
-                0.0
-            {% endif %}
-        </div>
-        <div class="stat-label">Tracked Devices (W)</div>
-    </div>
-
-    <div class="stat-card" style="{% if data and data.untracked_power and data.untracked_power > 0 %}border: 2px solid var(--color-warning);{% endif %}">
-        <div class="stat-icon">❓</div>
-        <div class="stat-value" id="untrackedPower" style="{% if data and data.untracked_power and data.untracked_power > 0 %}color: var(--color-warning);{% endif %}">
-            {% if data and data.untracked_power %}
-                {{ "%.1f"|format(data.untracked_power) }}
-            {% else %}
-                0.0
-            {% endif %}
-        </div>
-        <div class="stat-label">Untracked (W)</div>
-    </div>
-</div>
-
 <!-- Room Power Breakdown -->
 <div class="main-card">
     <div class="main-card-header">
         <h2 class="main-card-title">Power by Room</h2>
     </div>
     <div class="chart-container">
-        <div id="roomPieChart" style="width: 100%; height: 200px;"></div>
+        <canvas id="roomPieChart" style="max-height: 300px;"></canvas>
     </div>
 </div>
 
@@ -72,7 +33,7 @@
         <h2 class="main-card-title">Top Power Consumers</h2>
     </div>
     <div class="chart-container">
-        <div id="deviceBarChart" style="width: 100%; height: 300px;"></div>
+        <canvas id="deviceBarChart" style="max-height: 400px;"></canvas>
     </div>
 </div>
 
@@ -143,109 +104,65 @@
 
     // Room Pie Chart
     if (roomData.length > 0) {
-        const roomChart = echarts.init(document.getElementById('roomPieChart'));
-        const roomChartData = roomData.map((r, i) => ({
-            name: r.name,
-            value: r.power,
-            itemStyle: { color: chartColors[i % chartColors.length] }
-        }));
+        const roomLabels = roomData.map(r => r.name);
+        const roomValues = roomData.map(r => r.power);
 
-        const roomOption = {
-            tooltip: {
-                trigger: 'item',
-                formatter: '{b}: {c} W ({d}%)'
+        new Chart(document.getElementById('roomPieChart'), {
+            type: 'pie',
+            data: {
+                labels: roomLabels,
+                datasets: [{
+                    data: roomValues,
+                    backgroundColor: chartColors,
+                    borderWidth: 2,
+                    borderColor: getComputedStyle(root).getPropertyValue('--bg-surface').trim()
+                }]
             },
-            legend: {
-                orient: 'vertical',
-                right: 10,
-                top: 'center',
-                textStyle: {
-                    color: 'var(--text-primary)',
-                    fontSize: 11
-                },
-                itemGap: 8
-            },
-            series: [{
-                name: 'Room Power',
-                type: 'pie',
-                radius: ['45%', '75%'],
-                center: ['35%', '50%'],
-                avoidLabelOverlap: false,
-                label: {
-                    show: false
-                },
-                labelLine: {
-                    show: false
-                },
-                data: roomChartData
-            }]
-        };
-
-        roomChart.setOption(roomOption);
-        window.addEventListener('resize', () => roomChart.resize());
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: window.innerWidth <= 768 ? 'bottom' : 'right'
+                    }
+                }
+            }
+        });
     }
 
     // Device Bar Chart (Top 10)
     if (deviceData.length > 0) {
-        const deviceChart = echarts.init(document.getElementById('deviceBarChart'));
         const sortedDevices = deviceData.sort((a, b) => b.power - a.power).slice(0, 10);
         const deviceLabels = sortedDevices.map(d => d.name);
         const deviceValues = sortedDevices.map(d => d.power);
 
-        const deviceOption = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
-                },
-                formatter: '{b}: {c} W'
+        new Chart(document.getElementById('deviceBarChart'), {
+            type: 'bar',
+            data: {
+                labels: deviceLabels,
+                datasets: [{
+                    label: 'Power (W)',
+                    data: deviceValues,
+                    backgroundColor: chartColors[0],
+                    borderRadius: 4
+                }]
             },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                top: '3%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'value',
-                axisLabel: {
-                    color: 'var(--text-muted)',
-                    formatter: '{value} W'
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: false
+                    }
                 },
-                splitLine: {
-                    lineStyle: {
-                        color: 'var(--border-color)'
+                scales: {
+                    x: {
+                        beginAtZero: true
                     }
                 }
-            },
-            yAxis: {
-                type: 'category',
-                data: deviceLabels,
-                axisLabel: {
-                    color: 'var(--text-primary)'
-                },
-                axisTick: {
-                    show: false
-                },
-                axisLine: {
-                    show: false
-                }
-            },
-            series: [{
-                name: 'Power',
-                type: 'bar',
-                data: deviceValues,
-                itemStyle: {
-                    color: chartColors[0],
-                    borderRadius: [0, 4, 4, 0]
-                },
-                barMaxWidth: 30
-            }]
-        };
-
-        deviceChart.setOption(deviceOption);
-        window.addEventListener('resize', () => deviceChart.resize());
+            }
+        });
     }
 
     // Start auto-refresh
