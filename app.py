@@ -106,6 +106,31 @@ def api_realtime():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/test-connection')
+def api_test_connection():
+    """API endpoint to test Home Assistant connection"""
+    try:
+        # Test connection by attempting to get states
+        states = ha_client.get_states()
+        if states is not None:
+            return jsonify({
+                'success': True,
+                'message': 'Connected successfully',
+                'sensors_found': len(states)
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Failed to retrieve states from Home Assistant'
+            }), 500
+    except Exception as e:
+        logger.error(f"Connection test failed: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Connection failed: {str(e)}'
+        }), 500
+
+
 @app.route('/api/device/<device_id>')
 def api_device(device_id):
     """API endpoint for device data"""
