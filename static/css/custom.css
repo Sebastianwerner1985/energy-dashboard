@@ -243,7 +243,7 @@
 .main-card {
     background-color: var(--bg-surface);
     border-radius: var(--radius-xl);
-    padding: var(--space-2);
+    padding: var(--space-1);
     box-shadow: var(--shadow-sm);
     margin-bottom: var(--space-2);
 }
@@ -252,7 +252,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-1);
 }
 
 .main-card-title {

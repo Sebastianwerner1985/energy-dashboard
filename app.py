@@ -1,7 +1,7 @@
 """
 Energy Dashboard Flask Application
 """
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 from services.home_assistant import HomeAssistantClient
 from services.data_processor import DataProcessor
 from utils.logger import setup_logger
@@ -22,7 +22,7 @@ data_processor = DataProcessor(ha_client, config.CACHE_TTL)
 @app.route('/')
 def index():
     """Redirect to overview page"""
-    return render_template('overview.html')
+    return redirect(url_for('overview'))
 
 
 @app.route('/overview')
