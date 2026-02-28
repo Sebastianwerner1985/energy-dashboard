@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Energy Dashboard{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <h1 class="page-title">Settings</h1>
+    <p class="page-subtitle">Configure your Energy Dashboard</p>
+</div>
+
+<!-- Home Assistant Connection -->
+<div class="main-card">
+    <h2 class="main-card-title">Home Assistant Connection</h2>
+    <form method="POST" style="margin-top: var(--space-4);">
+        <div style="margin-bottom: var(--space-4);">
+            <label for="ha_url" style="display: block; margin-bottom: var(--space-2); font-weight: var(--font-medium); color: var(--text-primary);">
+                Home Assistant URL
+            </label>
+            <input
+                type="text"
+                id="ha_url"
+                name="ha_url"
+                value="{{ config.HA_URL if config else '' }}"
+                placeholder="http://homeassistant.local:8123"
+                class="input-field"
+                style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-default); border-radius: var(--radius-md); background-color: var(--bg-base); color: var(--text-primary); font-size: var(--text-sm);"
+            >
+        </div>
+
+        <div style="margin-bottom: var(--space-4);">
+            <label for="ha_token" style="display: block; margin-bottom: var(--space-2); font-weight: var(--font-medium); color: var(--text-primary);">
+                Long-Lived Access Token
+            </label>
+            <input
+                type="password"
+                id="ha_token"
+                name="ha_token"
+                value="{{ config.HA_TOKEN if config else '' }}"
+                placeholder="Enter your Home Assistant token"
+                class="input-field"
+                style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-default); border-radius: var(--radius-md); background-color: var(--bg-base); color: var(--text-primary); font-size: var(--text-sm);"
+            >
+            <small style="display: block; margin-top: var(--space-2); color: var(--text-muted); font-size: var(--text-xs);">
+                Create a token in Home Assistant: Profile → Long-Lived Access Tokens
+            </small>
+        </div>
+    </form>
+</div>
+
+<!-- Energy Configuration -->
+<div class="main-card">
+    <h2 class="main-card-title">Energy Configuration</h2>
+    <form method="POST" style="margin-top: var(--space-4);">
+        <div style="margin-bottom: var(--space-4);">
+            <label for="electricity_rate" style="display: block; margin-bottom: var(--space-2); font-weight: var(--font-medium); color: var(--text-primary);">
+                Electricity Rate ($/kWh)
+            </label>
+            <input
+                type="number"
+                id="electricity_rate"
+                name="electricity_rate"
+                value="{{ config.ELECTRICITY_RATE if config else '0.12' }}"
+                step="0.01"
+                min="0"
+                class="input-field"
+                style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-default); border-radius: var(--radius-md); background-color: var(--bg-base); color: var(--text-primary); font-size: var(--text-sm);"
+            >
+        </div>
+
+        <div style="margin-bottom: var(--space-4);">
+            <label for="currency" style="display: block; margin-bottom: var(--space-2); font-weight: var(--font-medium); color: var(--text-primary);">
+                Currency Symbol
+            </label>
+            <input
+                type="text"
+                id="currency"
+                name="currency"
+                value="{{ config.CURRENCY if config else '$' }}"
+                maxlength="3"
+                class="input-field"
+                style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-default); border-radius: var(--radius-md); background-color: var(--bg-base); color: var(--text-primary); font-size: var(--text-sm);"
+            >
+        </div>
+    </form>
+</div>
+
+<!-- Cache Configuration -->
+<div class="main-card">
+    <h2 class="main-card-title">Cache Configuration</h2>
+    <form method="POST" style="margin-top: var(--space-4);">
+        <div style="margin-bottom: var(--space-4);">
+            <label for="cache_ttl" style="display: block; margin-bottom: var(--space-2); font-weight: var(--font-medium); color: var(--text-primary);">
+                Cache TTL (seconds)
+            </label>
+            <input
+                type="number"
+                id="cache_ttl"
+                name="cache_ttl"
+                value="{{ config.CACHE_TTL if config else '60' }}"
+                min="10"
+                max="3600"
+                class="input-field"
+                style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-default); border-radius: var(--radius-md); background-color: var(--bg-base); color: var(--text-primary); font-size: var(--text-sm);"
+            >
+            <small style="display: block; margin-top: var(--space-2); color: var(--text-muted); font-size: var(--text-xs);">
+                How long to cache data before refreshing (10-3600 seconds)
+            </small>
+        </div>
+    </form>
+</div>
+
+<!-- Action Buttons -->
+<div style="display: flex; gap: var(--space-3);">
+    <button
+        type="submit"
+        class="btn-primary"
+        style="padding: var(--space-3) var(--space-6); background-color: var(--color-primary); color: white; border: none; border-radius: var(--radius-md); font-weight: var(--font-medium); cursor: pointer; font-size: var(--text-sm);"
+    >
+        Save Settings
+    </button>
+    <button
+        type="button"
+        class="btn-secondary"
+        onclick="testConnection()"
+        style="padding: var(--space-3) var(--space-6); background-color: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); border-radius: var(--radius-md); font-weight: var(--font-medium); cursor: pointer; font-size: var(--text-sm);"
+    >
+        Test Connection
+    </button>
+</div>
+
+<!-- Test Result Alert -->
+<div id="testResult" style="margin-top: var(--space-4); display: none;"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    async function testConnection() {
+        const resultDiv = document.getElementById('testResult');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `
+            <div class="alert alert-info">
+                <span class="alert-icon">⏳</span>
+                <div class="alert-content">
+                    <div class="alert-title">Testing connection...</div>
+                </div>
+            </div>
+        `;
+
+        try {
+            const response = await fetch('/api/test-connection');
+            const data = await response.json();
+
+            if (data.success) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✅</span>
+                        <div class="alert-content">
+                            <div class="alert-title">Connection successful!</div>
+                            <div>Connected to Home Assistant</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="alert-icon">❌</span>
+                        <div class="alert-content">
+                            <div class="alert-title">Connection failed</div>
+                            <div>${data.error || 'Unable to connect to Home Assistant'}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-error">
+                    <span class="alert-icon">❌</span>
+                    <div class="alert-content">
+                        <div class="alert-title">Connection failed</div>
+                        <div>${error.message}</div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+</script>
+{% endblock %}
