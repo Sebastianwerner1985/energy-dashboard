@@ -37,47 +37,32 @@
             <div class="sidebar-header">
                 <div class="sidebar-logo">⚡</div>
                 <div>
-                    <h1 class="sidebar-title">Energy Dashboard</h1>
+                    <div class="sidebar-title">Energy</div>
+                    <div class="sidebar-subtitle">Dashboard</div>
                 </div>
             </div>
 
             <!-- Sidebar Navigation -->
             <nav class="sidebar-nav">
-                <a href="{{ url_for('overview') }}" class="sidebar-nav-item {% if request.endpoint == 'overview' %}active{% endif %}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="14" width="7" height="7"></rect>
-                        <rect x="3" y="14" width="7" height="7"></rect>
-                    </svg>
-                    Overview
+                <a href="{{ url_for('overview') }}" class="nav-link {% if request.endpoint == 'overview' %}active{% endif %}">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Overview</span>
                 </a>
-                <a href="{{ url_for('realtime') }}" class="sidebar-nav-item {% if request.endpoint == 'realtime' %}active{% endif %}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                    </svg>
-                    Real-time
+                <a href="{{ url_for('realtime') }}" class="nav-link {% if request.endpoint == 'realtime' %}active{% endif %}">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-text">Real-time</span>
                 </a>
-                <a href="{{ url_for('costs') }}" class="sidebar-nav-item {% if request.endpoint == 'costs' %}active{% endif %}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                    </svg>
-                    Costs
+                <a href="{{ url_for('costs') }}" class="nav-link {% if request.endpoint == 'costs' %}active{% endif %}">
+                    <span class="nav-icon">💰</span>
+                    <span class="nav-text">Costs</span>
                 </a>
-                <a href="{{ url_for('history') }}" class="sidebar-nav-item {% if request.endpoint == 'history' %}active{% endif %}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    History
+                <a href="{{ url_for('history') }}" class="nav-link {% if request.endpoint == 'history' %}active{% endif %}">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">History</span>
                 </a>
-                <a href="{{ url_for('settings') }}" class="sidebar-nav-item {% if request.endpoint == 'settings' %}active{% endif %}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M12 1v6m0 6v6m5.196-15.804l-4.243 4.243m-2.828 2.828l-4.243 4.243m15.804-4.242l-4.243-4.243m-2.828 2.828l-4.243-4.243"></path>
-                    </svg>
-                    Settings
+                <a href="{{ url_for('settings') }}" class="nav-link {% if request.endpoint == 'settings' %}active{% endif %}">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
                 </a>
             </nav>
 
@@ -164,13 +149,11 @@
         function toggleMobileMenu() {
             sidebar.classList.toggle('active');
             mobileBackdrop.classList.toggle('active');
-            document.body.classList.toggle('menu-open');
         }
 
         function closeMobileMenu() {
             sidebar.classList.remove('active');
             mobileBackdrop.classList.remove('active');
-            document.body.classList.remove('menu-open');
         }
 
         if (mobileMenuToggle) {
@@ -180,31 +163,6 @@
         if (mobileBackdrop) {
             mobileBackdrop.addEventListener('click', closeMobileMenu);
         }
-
-        // Close mobile menu when clicking a nav link
-        document.querySelectorAll('.sidebar-nav-item').forEach(item => {
-            item.addEventListener('click', closeMobileMenu);
-        });
-
-        // Chart.js Theme Configuration
-        function getChartTheme() {
-            const theme = html.getAttribute('data-theme');
-            return {
-                isDark: theme === 'dark',
-                textColor: theme === 'dark' ? '#e0e0e0' : '#333333',
-                gridColor: theme === 'dark' ? '#333333' : '#e0e0e0',
-                backgroundColor: theme === 'dark' ? '#1a1a1a' : '#ffffff'
-            };
-        }
-
-        // Default Chart.js Configuration
-        if (typeof Chart !== 'undefined') {
-            Chart.defaults.font.family = "'Inter', 'system-ui', sans-serif";
-            Chart.defaults.responsive = true;
-            Chart.defaults.maintainAspectRatio = false;
-        }
     </script>
-
-    {% block extra_scripts %}{% endblock %}
 </body>
 </html>
