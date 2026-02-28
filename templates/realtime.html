@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Real-time - Energy Dashboard{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="flex-between">
+        <div>
+            <h1 class="page-title">Real-time Monitoring</h1>
+            <p class="page-subtitle">Live power consumption by room and device</p>
+        </div>
+        <span class="badge badge-success">
+            <span style="display: inline-block; width: 8px; height: 8px; background-color: currentColor; border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite;"></span>
+            Live
+        </span>
+    </div>
+</div>
+
+<!-- Room Power Breakdown -->
+<div class="main-card">
+    <div class="main-card-header">
+        <h2 class="main-card-title">Power by Room</h2>
+    </div>
+    <div class="chart-container">
+        <canvas id="roomPieChart" style="max-height: 300px;"></canvas>
+    </div>
+</div>
+
+<!-- Device Power Distribution -->
+<div class="main-card">
+    <div class="main-card-header">
+        <h2 class="main-card-title">Top Power Consumers</h2>
+    </div>
+    <div class="chart-container">
+        <canvas id="deviceBarChart" style="max-height: 400px;"></canvas>
+    </div>
+</div>
+
+<!-- Device List -->
+<div class="main-card">
+    <h2 class="main-card-title">All Devices</h2>
+    <div class="table-container" style="margin-top: var(--space-4);">
+        <table>
+            <thead>
+                <tr>
+                    <th>Device</th>
+                    <th>Room</th>
+                    <th class="number">Power (W)</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="deviceTableBody">
+                {% if data and data.devices %}
+                    {% for device in data.devices %}
+                    <tr>
+                        <td>{{ device.name }}</td>
+                        <td>{{ device.room or 'Unknown' }}</td>
+                        <td class="number">{{ "%.1f"|format(device.power) }}</td>
+                        <td>
+                            {% if device.power > 0 %}
+                            <span class="badge badge-success">Active</span>
+                            {% else %}
+                            <span class="badge badge-warning">Idle</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-muted);">
+                            No device data available
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/realtime.js') }}"></script>
+<script>
+    // Initialize charts with SnowUI colors
+    const root = document.documentElement;
+    const chartColors = [
+        getComputedStyle(root).getPropertyValue('--color-primary').trim(),
+        getComputedStyle(root).getPropertyValue('--color-cyan').trim(),
+        getComputedStyle(root).getPropertyValue('--color-mint').trim(),
+        getComputedStyle(root).getPropertyValue('--color-purple').trim(),
+        getComputedStyle(root).getPropertyValue('--color-green').trim()
+    ];
+
+    const roomData = {{ data.rooms | tojson if data and data.rooms else '[]' }};
+    const deviceData = {{ data.devices | tojson if data and data.devices else '[]' }};
+
+    // Room Pie Chart
+    if (roomData.length > 0) {
+        const roomLabels = roomData.map(r => r.name);
+        const roomValues = roomData.map(r => r.power);
+
+        new Chart(document.getElementById('roomPieChart'), {
+            type: 'pie',
+            data: {
+                labels: roomLabels,
+                datasets: [{
+                    data: roomValues,
+                    backgroundColor: chartColors,
+                    borderWidth: 2,
+                    borderColor: getComputedStyle(root).getPropertyValue('--bg-surface').trim()
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: window.innerWidth <= 768 ? 'bottom' : 'right'
+                    }
+                }
+            }
+        });
+    }
+
+    // Device Bar Chart (Top 10)
+    if (deviceData.length > 0) {
+        const sortedDevices = deviceData.sort((a, b) => b.power - a.power).slice(0, 10);
+        const deviceLabels = sortedDevices.map(d => d.name);
+        const deviceValues = sortedDevices.map(d => d.power);
+
+        new Chart(document.getElementById('deviceBarChart'), {
+            type: 'bar',
+            data: {
+                labels: deviceLabels,
+                datasets: [{
+                    label: 'Power (W)',
+                    data: deviceValues,
+                    backgroundColor: chartColors[0],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Start auto-refresh
+    startAutoRefresh();
+</script>
+{% endblock %}
