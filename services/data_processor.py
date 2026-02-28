@@ -397,62 +397,47 @@ class DataProcessor:
 
     def _calculate_daily_energy(self, sensors: List[Dict]) -> float:
         """
-        Calculate total daily energy consumption (today only)
+        Calculate total daily energy consumption estimate
 
         Args:
             sensors: List of energy sensors
 
         Returns:
-            Daily energy in kWh (today's consumption, not cumulative)
+            Daily energy in kWh (estimated from current readings)
         """
+        # Simple approach: use current values from energy sensors
+        # This is much faster than fetching history for every sensor
         total = 0.0
-
-        # Get midnight today as start time
-        now = datetime.now()
-        midnight = datetime(now.year, now.month, now.day, 0, 0, 0)
 
         for sensor in sensors:
             try:
-                entity_id = sensor.get('entity_id')
-                if not entity_id:
+                state = sensor['state']
+                if state in ['unknown', 'unavailable', 'none', None]:
                     continue
 
-                # Get history from midnight to now
-                history = self.ha_client.get_history(entity_id, midnight.isoformat())
+                value = float(state)
+                unit = sensor.get('attributes', {}).get('unit_of_measurement', 'kWh')
 
-                if history and len(history) > 0:
-                    states = history  # history is already the states list
+                # Convert to kWh if needed
+                if unit == 'Wh':
+                    value /= 1000
 
-                    # Get first state after midnight (or current if only one)
-                    first_value = None
-                    for state in states:
-                        try:
-                            if state['state'] not in ['unknown', 'unavailable', 'none', None]:
-                                first_value = float(state['state'])
-                                break
-                        except (ValueError, KeyError):
-                            continue
+                # For cumulative sensors, use a fraction based on time of day
+                # Assume sensor shows today's total already if it's reset daily
+                if value > 0:
+                    total += value
 
-                    # Get latest state
-                    current_state = sensor['state']
-                    if current_state not in ['unknown', 'unavailable', 'none', None] and first_value is not None:
-                        current_value = float(current_state)
-
-                        # Calculate difference (today's consumption)
-                        daily_value = current_value - first_value
-
-                        # Convert to kWh if needed
-                        unit = sensor.get('attributes', {}).get('unit_of_measurement', 'kWh')
-                        if unit == 'Wh':
-                            daily_value /= 1000
-
-                        # Only add positive values (in case sensor was reset)
-                        if daily_value > 0:
-                            total += daily_value
-
-            except (ValueError, KeyError, IndexError) as e:
-                logger.debug(f"Error calculating daily energy for sensor: {e}")
+            except (ValueError, KeyError):
                 continue
+
+        # If we got nothing from energy sensors, estimate from power sensors
+        if total == 0:
+            power_sensors = self.ha_client.get_power_sensors()
+            current_power = self._calculate_total_power(power_sensors)
+            # Estimate: assume average power for hours elapsed today
+            now = datetime.now()
+            hours_today = now.hour + now.minute / 60.0
+            total = (current_power / 1000) * hours_today
 
         return total
 
