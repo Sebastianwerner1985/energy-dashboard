@@ -11,5 +11,4 @@ env/
 .DS_Store
 *.db
 *.sqlite
-config.py
 logs/
