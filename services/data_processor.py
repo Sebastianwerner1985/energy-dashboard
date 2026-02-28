@@ -453,49 +453,67 @@ class DataProcessor:
 
     def _calculate_daily_energy(self, sensors: List[Dict]) -> float:
         """
-        Calculate total daily energy consumption estimate
+        Calculate total daily energy consumption
 
         Args:
             sensors: List of energy sensors
 
         Returns:
-            Daily energy in kWh (estimated from current readings)
+            Daily energy in kWh
         """
-        # Simple approach: use current values from energy sensors
-        # This is much faster than fetching history for every sensor
-        total = 0.0
-
+        # Try to use HA Energy Dashboard sensors first (they track daily automatically)
+        # Look for sensors with "energy" and "daily" or "today" in the name
         for sensor in sensors:
             try:
-                state = sensor['state']
-                if state in ['unknown', 'unavailable', 'none', None]:
-                    continue
+                entity_id = sensor.get('entity_id', '').lower()
+                friendly_name = sensor.get('attributes', {}).get('friendly_name', '').lower()
 
-                value = float(state)
-                unit = sensor.get('attributes', {}).get('unit_of_measurement', 'kWh')
+                # Check for daily energy sensors
+                if any(keyword in entity_id or keyword in friendly_name for keyword in ['daily', 'today', '_day']):
+                    state = sensor['state']
+                    if state not in ['unknown', 'unavailable', 'none', None]:
+                        value = float(state)
+                        unit = sensor.get('attributes', {}).get('unit_of_measurement', 'kWh')
 
-                # Convert to kWh if needed
-                if unit == 'Wh':
-                    value /= 1000
+                        # Convert to kWh
+                        if unit == 'Wh':
+                            value /= 1000
 
-                # For cumulative sensors, use a fraction based on time of day
-                # Assume sensor shows today's total already if it's reset daily
-                if value > 0:
-                    total += value
-
+                        if value > 0 and value < 1000:  # Sanity check (not cumulative)
+                            logger.info(f"Using daily energy sensor: {sensor.get('entity_id')} = {value} kWh")
+                            return value
             except (ValueError, KeyError):
                 continue
 
-        # If we got nothing from energy sensors, estimate from power sensors
-        if total == 0:
-            power_sensors = self.ha_client.get_power_sensors()
-            current_power = self._calculate_total_power(power_sensors)
-            # Estimate: assume average power for hours elapsed today
-            now = datetime.now()
-            hours_today = now.hour + now.minute / 60.0
-            total = (current_power / 1000) * hours_today
+        # Fallback: estimate from current power usage
+        # This is less accurate but doesn't show cumulative values
+        power_sensors = self.ha_client.get_power_sensors()
 
-        return total
+        # Filter out bitshake
+        bitshake_power = 0
+        tracked_power = 0
+
+        for sensor in power_sensors:
+            entity_id = sensor['entity_id']
+            friendly_name = sensor.get('attributes', {}).get('friendly_name', entity_id)
+
+            if 'bitshake' in entity_id.lower() or 'bitshake' in friendly_name.lower():
+                bitshake_power = self._parse_power(sensor)
+            else:
+                tracked_power += self._parse_power(sensor)
+
+        # Use bitshake if available, otherwise tracked
+        current_power = bitshake_power if bitshake_power > 0 else tracked_power
+
+        # Estimate today's energy based on time of day and current power
+        now = datetime.now()
+        hours_today = now.hour + now.minute / 60.0
+
+        # Estimate: assume current power for all hours so far today
+        estimated_kwh = (current_power / 1000) * hours_today
+
+        logger.warning(f"Using estimated daily energy: {estimated_kwh:.2f} kWh (no daily sensor found)")
+        return estimated_kwh
 
     def _parse_period(self, period: str) -> int:
         """
