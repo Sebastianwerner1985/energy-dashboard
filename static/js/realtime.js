@@ -27,6 +27,22 @@ async function refreshData() {
             }
         }
 
+        // Update tracked power
+        if (data.tracked_power !== undefined) {
+            const trackedPowerEl = document.getElementById('trackedPower');
+            if (trackedPowerEl) {
+                trackedPowerEl.textContent = data.tracked_power.toFixed(1);
+            }
+        }
+
+        // Update untracked power
+        if (data.untracked_power !== undefined) {
+            const untrackedPowerEl = document.getElementById('untrackedPower');
+            if (untrackedPowerEl) {
+                untrackedPowerEl.textContent = data.untracked_power.toFixed(1);
+            }
+        }
+
         // Update device table
         if (data.devices) {
             updateDeviceTable(data.devices);

@@ -72,17 +72,30 @@ class DataProcessor:
         power_sensors = self.ha_client.get_power_sensors()
         energy_sensors = self.ha_client.get_energy_sensors()
 
-        # Calculate total current power
-        total_power = self._calculate_total_power(power_sensors)
+        # Separate bitshake from tracked devices
+        bitshake_power = 0
+        tracked_sensors = []
 
-        # Get top consumers
-        top_consumers = self._get_top_consumers(power_sensors, limit=5)
+        for sensor in power_sensors:
+            entity_id = sensor['entity_id']
+            friendly_name = sensor.get('attributes', {}).get('friendly_name', entity_id)
+
+            if 'bitshake' in entity_id.lower() or 'bitshake' in friendly_name.lower():
+                bitshake_power = self._parse_power(sensor)
+            else:
+                tracked_sensors.append(sensor)
+
+        # Use bitshake as total power, or sum of tracked if no bitshake
+        total_power = bitshake_power if bitshake_power > 0 else self._calculate_total_power(tracked_sensors)
+
+        # Get top consumers (from tracked devices only)
+        top_consumers = self._get_top_consumers(tracked_sensors, limit=5)
 
         # Calculate daily energy consumption
         daily_energy = self._calculate_daily_energy(energy_sensors)
 
-        # Get device count
-        device_count = len(power_sensors)
+        # Device count (tracked devices only, exclude bitshake)
+        device_count = len(tracked_sensors)
 
         data = {
             'total_power': total_power,
@@ -107,18 +120,43 @@ class DataProcessor:
             return cached
 
         power_sensors = self.ha_client.get_power_sensors()
-        rooms = self.ha_client.get_devices_by_room()
 
-        # Calculate power by room
-        room_power = {}
-        for room, sensors in rooms.items():
-            room_power[room] = sum(
-                self._parse_power(sensor) for sensor in sensors
-            )
+        # Separate bitshake (whole-house meter) from tracked devices
+        bitshake_power = 0
+        tracked_sensors = []
 
-        # Format device list with room information
-        devices = []
         for sensor in power_sensors:
+            entity_id = sensor['entity_id']
+            friendly_name = sensor.get('attributes', {}).get('friendly_name', entity_id)
+
+            # Check if this is a bitshake entity (whole-house meter)
+            if 'bitshake' in entity_id.lower() or 'bitshake' in friendly_name.lower():
+                bitshake_power = self._parse_power(sensor)
+            else:
+                tracked_sensors.append(sensor)
+
+        # Calculate power by room (only tracked devices)
+        rooms = {}
+        for sensor in tracked_sensors:
+            friendly_name = sensor.get('attributes', {}).get('friendly_name', sensor['entity_id'])
+            entity_id = sensor['entity_id']
+            room = self.ha_client._extract_room(friendly_name, entity_id)
+
+            if room not in rooms:
+                rooms[room] = 0
+            rooms[room] += self._parse_power(sensor)
+
+        # Calculate tracked vs untracked
+        tracked_total = sum(rooms.values())
+        untracked_power = max(0, bitshake_power - tracked_total)
+
+        # Add untracked to rooms if there's any
+        if untracked_power > 0:
+            rooms['Untracked'] = untracked_power
+
+        # Format device list with room information (tracked devices only)
+        devices = []
+        for sensor in tracked_sensors:
             friendly_name = sensor.get('attributes', {}).get('friendly_name', sensor['entity_id'])
             entity_id = sensor['entity_id']
             room = self.ha_client._extract_room(friendly_name, entity_id)
@@ -133,10 +171,13 @@ class DataProcessor:
             })
 
         data = {
-            'room_power': room_power,
-            'rooms': [{'name': room, 'power': power} for room, power in room_power.items()],
+            'room_power': rooms,
+            'rooms': [{'name': room, 'power': power} for room, power in rooms.items()],
             'devices': devices,
-            'total_power': sum(room_power.values()),
+            'total_power': bitshake_power if bitshake_power > 0 else tracked_total,  # Use bitshake as true total
+            'tracked_power': tracked_total,
+            'untracked_power': untracked_power,
+            'bitshake_power': bitshake_power,
             'timestamp': datetime.now().isoformat()
         }
 
@@ -158,22 +199,37 @@ class DataProcessor:
         power_sensors = self.ha_client.get_power_sensors()
 
         # Get electricity rate from config (should be passed in, but using default for now)
-        rate = 0.12  # $ per kWh
+        rate = 0.26  # € per kWh
+
+        # Separate bitshake from tracked devices
+        bitshake_power = 0
+        tracked_sensors = []
+
+        for sensor in power_sensors:
+            entity_id = sensor['entity_id']
+            friendly_name = sensor.get('attributes', {}).get('friendly_name', entity_id)
+
+            if 'bitshake' in entity_id.lower() or 'bitshake' in friendly_name.lower():
+                bitshake_power = self._parse_power(sensor)
+            else:
+                tracked_sensors.append(sensor)
+
+        # Use bitshake for calculations if available, otherwise tracked total
+        current_power = bitshake_power if bitshake_power > 0 else self._calculate_total_power(tracked_sensors)
 
         # Calculate daily cost
         daily_energy = self._calculate_daily_energy(energy_sensors)
         daily_cost = daily_energy * rate
 
         # Calculate current power cost per hour
-        current_power = self._calculate_total_power(power_sensors)
         hourly_cost = (current_power / 1000) * rate
 
         # Project monthly cost
         monthly_projection = daily_cost * 30
 
-        # Calculate cost by device
+        # Calculate cost by device (tracked devices only, not bitshake)
         device_costs = []
-        for sensor in power_sensors:
+        for sensor in tracked_sensors:
             friendly_name = sensor.get('attributes', {}).get('friendly_name', sensor['entity_id'])
             entity_id = sensor['entity_id']
             power = self._parse_power(sensor)

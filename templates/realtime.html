@@ -17,6 +17,45 @@
     </div>
 </div>
 
+<!-- Power Summary -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6);">
+    <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-value" id="totalPower">
+            {% if data and data.total_power %}
+                {{ "%.1f"|format(data.total_power) }}
+            {% else %}
+                0.0
+            {% endif %}
+        </div>
+        <div class="stat-label">Total Power (W)</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-value" id="trackedPower">
+            {% if data and data.tracked_power %}
+                {{ "%.1f"|format(data.tracked_power) }}
+            {% else %}
+                0.0
+            {% endif %}
+        </div>
+        <div class="stat-label">Tracked Devices (W)</div>
+    </div>
+
+    <div class="stat-card" style="{% if data and data.untracked_power and data.untracked_power > 0 %}border: 2px solid var(--color-warning);{% endif %}">
+        <div class="stat-icon">❓</div>
+        <div class="stat-value" id="untrackedPower" style="{% if data and data.untracked_power and data.untracked_power > 0 %}color: var(--color-warning);{% endif %}">
+            {% if data and data.untracked_power %}
+                {{ "%.1f"|format(data.untracked_power) }}
+            {% else %}
+                0.0
+            {% endif %}
+        </div>
+        <div class="stat-label">Untracked (W)</div>
+    </div>
+</div>
+
 <!-- Room Power Breakdown -->
 <div class="main-card">
     <div class="main-card-header">
