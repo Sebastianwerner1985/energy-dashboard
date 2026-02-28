@@ -2,8 +2,15 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Energy Dashboard{% endblock %}</title>
+
+    <!-- iOS PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Energy Dashboard">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -84,7 +91,12 @@
     <script>
         // Theme Management
         function initTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
+            let savedTheme = 'dark';
+            try {
+                savedTheme = localStorage.getItem('theme') || 'dark';
+            } catch (e) {
+                console.warn('localStorage not available, using default theme');
+            }
             document.documentElement.setAttribute('data-theme', savedTheme);
             updateThemeUI(savedTheme);
         }
@@ -94,7 +106,11 @@
             const currentTheme = html.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+            try {
+                localStorage.setItem('theme', newTheme);
+            } catch (e) {
+                console.warn('localStorage not available, theme will not persist');
+            }
             updateThemeUI(newTheme);
             updateChartTheme(newTheme);
         }
@@ -103,11 +119,11 @@
             const icon = document.getElementById('themeIcon');
             const text = document.getElementById('themeText');
             if (theme === 'dark') {
-                icon.textContent = '🌙';
-                text.textContent = 'Dark Mode';
-            } else {
                 icon.textContent = '☀️';
                 text.textContent = 'Light Mode';
+            } else {
+                icon.textContent = '🌙';
+                text.textContent = 'Dark Mode';
             }
         }
 
@@ -122,9 +138,11 @@
                 Chart.defaults.borderColor = borderColor;
 
                 // Trigger redraw of all charts
-                Chart.instances.forEach(chart => {
-                    chart.update('none');
-                });
+                if (Chart.instances && Chart.instances.length > 0) {
+                    Chart.instances.forEach(chart => {
+                        chart.update('none');
+                    });
+                }
             }
         }
 
@@ -133,6 +151,10 @@
             const toggle = document.getElementById('mobileMenuToggle');
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('mobileBackdrop');
+
+            if (!toggle || !sidebar || !backdrop) {
+                return;
+            }
 
             toggle.addEventListener('click', () => {
                 sidebar.classList.add('mobile-open');
@@ -149,7 +171,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             initTheme();
             initMobileMenu();
-            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
         });
     </script>
 
