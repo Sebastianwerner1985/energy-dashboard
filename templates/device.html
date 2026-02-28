@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}{{ device.name if device else 'Device' }} - Energy Dashboard{% endblock %}
+
+{% block content %}
+<!-- Device Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <span style="font-size: 32px; margin-right: var(--space-3);">🔌</span>
+            {{ device.name if device else 'Device Details' }}
+        </h1>
+        <p class="page-subtitle">
+            {% if device and device.room %}
+                {{ device.room }} •
+            {% endif %}
+            Last updated: {{ device.last_updated if device else 'Unknown' }}
+        </p>
+    </div>
+</div>
+
+<!-- Current Stats -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6);">
+    <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-value">
+            {% if device and device.current_power %}
+                {{ "%.1f"|format(device.current_power) }}
+            {% else %}
+                0.0
+            {% endif %}
+        </div>
+        <div class="stat-label">Current Power (W)</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value">
+            {% if device and device.daily_energy %}
+                {{ "%.2f"|format(device.daily_energy) }}
+            {% else %}
+                0.00
+            {% endif %}
+        </div>
+        <div class="stat-label">Today's Energy (kWh)</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">
+            {% if device and device.daily_cost %}
+                ${{ "%.2f"|format(device.daily_cost) }}
+            {% else %}
+                $0.00
+            {% endif %}
+        </div>
+        <div class="stat-label">Today's Cost</div>
+    </div>
+</div>
+
+<!-- 24-Hour Usage Chart -->
+<div class="main-card">
+    <div class="main-card-header">
+        <h2 class="main-card-title">24-Hour Usage Pattern</h2>
+    </div>
+    <div class="chart-container">
+        <canvas id="deviceUsageChart" style="max-height: 350px;"></canvas>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="main-card">
+    <h2 class="main-card-title">Statistics</h2>
+    <div class="table-container" style="margin-top: var(--space-4);">
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th class="number">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Average Power</td>
+                    <td class="number">
+                        {% if device and device.avg_power %}
+                            {{ "%.1f"|format(device.avg_power) }} W
+                        {% else %}
+                            0.0 W
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Peak Power</td>
+                    <td class="number">
+                        {% if device and device.peak_power %}
+                            {{ "%.1f"|format(device.peak_power) }} W
+                        {% else %}
+                            0.0 W
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Total Energy (Today)</td>
+                    <td class="number">
+                        {% if device and device.daily_energy %}
+                            {{ "%.2f"|format(device.daily_energy) }} kWh
+                        {% else %}
+                            0.00 kWh
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Monthly Projection</td>
+                    <td class="number">
+                        {% if device and device.monthly_cost %}
+                            ${{ "%.2f"|format(device.monthly_cost) }}
+                        {% else %}
+                            $0.00
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/device.js') }}"></script>
+<script>
+    const root = document.documentElement;
+    const primaryColor = getComputedStyle(root).getPropertyValue('--color-primary').trim();
+
+    // 24-hour usage data
+    const usageData = {{ device.usage_history | tojson if device and device.usage_history else '[]' }};
+
+    if (usageData.length > 0) {
+        new Chart(document.getElementById('deviceUsageChart'), {
+            type: 'line',
+            data: {
+                labels: usageData.map(d => d.hour),
+                datasets: [{
+                    label: 'Power (W)',
+                    data: usageData.map(d => d.power),
+                    borderColor: primaryColor,
+                    backgroundColor: primaryColor + '20',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}
