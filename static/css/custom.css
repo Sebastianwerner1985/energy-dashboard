@@ -326,7 +326,7 @@ tbody tr:last-child td {
 .chart-wrapper {
     background-color: var(--bg-surface);
     border-radius: var(--radius-lg);
-    padding: var(--space-2);
+    padding: var(--space-1);
     box-shadow: var(--shadow-sm);
 }
 
