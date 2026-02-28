@@ -71,9 +71,7 @@
     <div class="main-card-header">
         <h2 class="main-card-title">Power Usage</h2>
     </div>
-    <div class="chart-container">
-        <canvas id="powerGaugeChart" style="max-height: 200px;"></canvas>
-    </div>
+    <div id="powerGaugeChart" style="width: 100%; height: 250px;"></div>
 </div>
 
 <!-- Quick Navigation -->
@@ -107,74 +105,74 @@
 
 {% block extra_scripts %}
 <script>
-    // Get SnowUI colors
-    const root = document.documentElement;
-    const primaryColor = getComputedStyle(root).getPropertyValue('--color-primary').trim();
-    const surfaceColor = getComputedStyle(root).getPropertyValue('--bg-surface').trim();
-
-    // Power Gauge Chart
+document.addEventListener('DOMContentLoaded', function() {
     const powerValue = {{ data.total_power if data and data.total_power else 0 }};
-    const maxPower = 5000; // Maximum expected power in watts
-
-    const gaugeData = {
-        datasets: [{
-            data: [powerValue, maxPower - powerValue],
-            backgroundColor: [primaryColor, surfaceColor],
-            borderWidth: 0
-        }]
-    };
-
-    const gaugeConfig = {
-        type: 'doughnut',
-        data: gaugeData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            aspectRatio: 2,
-            circumference: 180,
-            rotation: 270,
-            cutout: '75%',
-            layout: {
-                padding: {
-                    top: 0,
-                    bottom: -50,
-                    left: 0,
-                    right: 0
+    const maxPower = 3000;
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim();
+    
+    const chart = echarts.init(document.getElementById('powerGaugeChart'));
+    
+    const option = {
+        series: [{
+            type: 'gauge',
+            startAngle: 180,
+            endAngle: 0,
+            min: 0,
+            max: maxPower,
+            splitNumber: 6,
+            radius: '90%',
+            center: ['50%', '70%'],
+            axisLine: {
+                lineStyle: {
+                    width: 25,
+                    color: [
+                        [powerValue/maxPower, primaryColor],
+                        [1, '#E0E0E0']
+                    ]
                 }
             },
-            plugins: {
-                legend: {
-                    display: false
+            pointer: {
+                itemStyle: {
+                    color: primaryColor
                 },
-                tooltip: {
-                    enabled: false
+                length: '70%'
+            },
+            axisTick: {
+                show: false
+            },
+            splitLine: {
+                distance: -25,
+                length: 25,
+                lineStyle: {
+                    color: '#fff',
+                    width: 2
                 }
-            }
-        },
-        plugins: [{
-            id: 'gaugeText',
-            afterDraw: (chart) => {
-                const ctx = chart.ctx;
-                const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
-                const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2 + 20;
-
-                ctx.save();
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.font = 'bold 32px Inter';
-                ctx.fillStyle = getComputedStyle(root).getPropertyValue('--text-primary').trim();
-                ctx.fillText(powerValue.toFixed(0) + ' W', centerX, centerY);
-                ctx.restore();
-            }
+            },
+            axisLabel: {
+                distance: 10,
+                color: 'var(--text-muted)',
+                fontSize: 11,
+                formatter: function(value) {
+                    return value.toFixed(0);
+                }
+            },
+            detail: {
+                valueAnimation: true,
+                formatter: '{value} W',
+                color: 'var(--text-primary)',
+                fontSize: 32,
+                fontWeight: 'bold',
+                offsetCenter: [0, '0%']
+            },
+            data: [{value: powerValue}]
         }]
     };
-
-    // Create chart when DOM is ready
-    document.addEventListener('DOMContentLoaded', () => {
-        const ctx = document.getElementById('powerGaugeChart');
-        if (ctx) {
-            new Chart(ctx, gaugeConfig);
-        }
+    
+    chart.setOption(option);
+    
+    window.addEventListener('resize', function() {
+        chart.resize();
     });
+});
 </script>
 {% endblock %}

@@ -22,6 +22,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/snowui-components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 
+    <!-- Apache ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
