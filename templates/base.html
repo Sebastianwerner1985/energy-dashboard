@@ -38,34 +38,48 @@
         <aside class="sidebar" id="sidebar">
             <!-- Sidebar Header -->
             <div class="sidebar-header">
-                <div class="sidebar-logo">⚡</div>
+                <div class="sidebar-logo" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                </div>
                 <div>
-                    <div class="sidebar-title">Energy</div>
-                    <div class="sidebar-subtitle">Dashboard</div>
+                    <h1 class="text-h4">Energy</h1>
+                    <span class="text-caption">Dashboard</span>
                 </div>
             </div>
 
             <!-- Navigation -->
-            <nav class="sidebar-nav">
-                <a href="{{ url_for('overview') }}" class="nav-link {% if request.endpoint == 'overview' %}active{% endif %}">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-text">Overview</span>
+            <nav class="nav-sidebar" role="navigation" aria-label="Main navigation">
+                <a href="{{ url_for('overview') }}" class="nav-sidebar-item {% if request.endpoint == 'overview' %}active{% endif %}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    <span>Overview</span>
                 </a>
-                <a href="{{ url_for('realtime') }}" class="nav-link {% if request.endpoint == 'realtime' %}active{% endif %}">
-                    <span class="nav-icon">⚡</span>
-                    <span class="nav-text">Real-time</span>
+                <a href="{{ url_for('realtime') }}" class="nav-sidebar-item {% if request.endpoint == 'realtime' %}active{% endif %}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    <span>Real-time</span>
                 </a>
-                <a href="{{ url_for('costs') }}" class="nav-link {% if request.endpoint == 'costs' %}active{% endif %}">
-                    <span class="nav-icon">💰</span>
-                    <span class="nav-text">Costs</span>
+                <a href="{{ url_for('costs') }}" class="nav-sidebar-item {% if request.endpoint == 'costs' %}active{% endif %}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    <span>Costs</span>
                 </a>
-                <a href="{{ url_for('history') }}" class="nav-link {% if request.endpoint == 'history' %}active{% endif %}">
-                    <span class="nav-icon">📈</span>
-                    <span class="nav-text">History</span>
+                <a href="{{ url_for('history') }}" class="nav-sidebar-item {% if request.endpoint == 'history' %}active{% endif %}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>
+                    </svg>
+                    <span>History</span>
                 </a>
-                <a href="{{ url_for('settings') }}" class="nav-link {% if request.endpoint == 'settings' %}active{% endif %}">
-                    <span class="nav-icon">⚙️</span>
-                    <span class="nav-text">Settings</span>
+                <a href="{{ url_for('settings') }}" class="nav-sidebar-item {% if request.endpoint == 'settings' %}active{% endif %}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M5.93 5.93l4.24 4.24m5.66 5.66l4.24 4.24M1 12h6m6 0h6m-8.66 5.07l4.24-4.24M5.93 18.07l4.24-4.24"/>
+                    </svg>
+                    <span>Settings</span>
                 </a>
             </nav>
 
