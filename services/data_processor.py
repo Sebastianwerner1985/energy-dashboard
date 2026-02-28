@@ -393,8 +393,8 @@ class DataProcessor:
                 # Get history from midnight to now
                 history = self.ha_client.get_history(entity_id, midnight.isoformat())
 
-                if history and len(history) > 0 and len(history[0]) > 0:
-                    states = history[0]
+                if history and len(history) > 0:
+                    states = history  # history is already the states list
 
                     # Get first state after midnight (or current if only one)
                     first_value = None
