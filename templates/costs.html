@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Costs - Energy Dashboard{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <h1 class="page-title">Cost Analysis</h1>
+    <p class="page-subtitle">Energy costs and projections</p>
+</div>
+
+<!-- Monthly Projection -->
+<div class="main-card">
+    <div class="main-card-header">
+        <h2 class="main-card-title">Monthly Cost Projection</h2>
+        <div class="stat-value" style="font-size: var(--text-xl);">
+            {% if data and data.monthly_projection %}
+                ${{ "%.2f"|format(data.monthly_projection) }}
+            {% else %}
+                $0.00
+            {% endif %}
+        </div>
+    </div>
+    <div class="chart-container">
+        <canvas id="costProjectionChart" style="max-height: 300px;"></canvas>
+    </div>
+</div>
+
+<!-- Device Costs Table -->
+<div class="main-card">
+    <h2 class="main-card-title">Top 10 Device Costs</h2>
+    <div class="table-container" style="margin-top: var(--space-4);">
+        <table>
+            <thead>
+                <tr>
+                    <th>Device</th>
+                    <th>Room</th>
+                    <th class="number">Daily Cost</th>
+                    <th class="number">Monthly Projection</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if data and data.device_costs %}
+                    {% for device in data.device_costs[:10] %}
+                    <tr>
+                        <td>{{ device.name }}</td>
+                        <td>{{ device.room or 'Unknown' }}</td>
+                        <td class="number">${{ "%.2f"|format(device.daily_cost) }}</td>
+                        <td class="number">${{ "%.2f"|format(device.monthly_cost) }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-muted);">
+                            No cost data available
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Cost Summary -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4);">
+    <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value">
+            {% if data and data.daily_cost %}
+                ${{ "%.2f"|format(data.daily_cost) }}
+            {% else %}
+                $0.00
+            {% endif %}
+        </div>
+        <div class="stat-label">Today's Cost</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value">
+            {% if data and data.weekly_cost %}
+                ${{ "%.2f"|format(data.weekly_cost) }}
+            {% else %}
+                $0.00
+            {% endif %}
+        </div>
+        <div class="stat-label">This Week</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">
+            {% if data and data.monthly_cost %}
+                ${{ "%.2f"|format(data.monthly_cost) }}
+            {% else %}
+                $0.00
+            {% endif %}
+        </div>
+        <div class="stat-label">This Month</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/costs.js') }}"></script>
+<script>
+    const root = document.documentElement;
+    const primaryColor = getComputedStyle(root).getPropertyValue('--color-primary').trim();
+
+    // Cost Projection Chart (Last 30 days)
+    const projectionData = {{ data.projection_data | tojson if data and data.projection_data else '[]' }};
+
+    if (projectionData.length > 0) {
+        new Chart(document.getElementById('costProjectionChart'), {
+            type: 'line',
+            data: {
+                labels: projectionData.map(d => d.date),
+                datasets: [{
+                    label: 'Daily Cost ($)',
+                    data: projectionData.map(d => d.cost),
+                    borderColor: primaryColor,
+                    backgroundColor: primaryColor + '20',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toFixed(2);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}
