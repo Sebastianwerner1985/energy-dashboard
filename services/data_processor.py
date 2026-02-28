@@ -130,6 +130,7 @@ class DataProcessor:
 
         data = {
             'room_power': room_power,
+            'rooms': [{'name': room, 'power': power} for room, power in room_power.items()],
             'devices': devices,
             'total_power': sum(room_power.values()),
             'timestamp': datetime.now().isoformat()
