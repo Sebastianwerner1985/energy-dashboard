@@ -15,9 +15,9 @@
         <h2 class="main-card-title">Monthly Cost Projection</h2>
         <div class="stat-value" style="font-size: var(--text-xl);">
             {% if data and data.monthly_projection %}
-                ${{ "%.2f"|format(data.monthly_projection) }}
+                {{ config.CURRENCY_SYMBOL }}{{ "%.2f"|format(data.monthly_projection) }}
             {% else %}
-                $0.00
+                {{ config.CURRENCY_SYMBOL }}0.00
             {% endif %}
         </div>
     </div>
@@ -45,8 +45,8 @@
                     <tr>
                         <td>{{ device.name }}</td>
                         <td>{{ device.room or 'Unknown' }}</td>
-                        <td class="number">${{ "%.2f"|format(device.daily_cost) }}</td>
-                        <td class="number">${{ "%.2f"|format(device.monthly_cost) }}</td>
+                        <td class="number">{{ config.CURRENCY_SYMBOL }}{{ "%.2f"|format(device.daily_cost) }}</td>
+                        <td class="number">{{ config.CURRENCY_SYMBOL }}{{ "%.2f"|format(device.monthly_cost) }}</td>
                     </tr>
                     {% endfor %}
                 {% else %}
@@ -67,9 +67,9 @@
         <div class="stat-icon">📅</div>
         <div class="stat-value">
             {% if data and data.daily_cost %}
-                ${{ "%.2f"|format(data.daily_cost) }}
+                {{ config.CURRENCY_SYMBOL }}{{ "%.2f"|format(data.daily_cost) }}
             {% else %}
-                $0.00
+                {{ config.CURRENCY_SYMBOL }}0.00
             {% endif %}
         </div>
         <div class="stat-label">Today's Cost</div>
@@ -79,9 +79,9 @@
         <div class="stat-icon">📊</div>
         <div class="stat-value">
             {% if data and data.weekly_cost %}
-                ${{ "%.2f"|format(data.weekly_cost) }}
+                {{ config.CURRENCY_SYMBOL }}{{ "%.2f"|format(data.weekly_cost) }}
             {% else %}
-                $0.00
+                {{ config.CURRENCY_SYMBOL }}0.00
             {% endif %}
         </div>
         <div class="stat-label">This Week</div>
@@ -91,9 +91,9 @@
         <div class="stat-icon">💰</div>
         <div class="stat-value">
             {% if data and data.monthly_cost %}
-                ${{ "%.2f"|format(data.monthly_cost) }}
+                {{ config.CURRENCY_SYMBOL }}{{ "%.2f"|format(data.monthly_cost) }}
             {% else %}
-                $0.00
+                {{ config.CURRENCY_SYMBOL }}0.00
             {% endif %}
         </div>
         <div class="stat-label">This Month</div>
@@ -116,7 +116,7 @@
             data: {
                 labels: projectionData.map(d => d.date),
                 datasets: [{
-                    label: 'Daily Cost ($)',
+                    label: 'Daily Cost ({{ config.CURRENCY_SYMBOL }})',
                     data: projectionData.map(d => d.cost),
                     borderColor: primaryColor,
                     backgroundColor: primaryColor + '20',
@@ -137,7 +137,7 @@
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return '$' + value.toFixed(2);
+                                return '{{ config.CURRENCY_SYMBOL }}' + value.toFixed(2);
                             }
                         }
                     }

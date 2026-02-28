@@ -42,11 +42,11 @@
         <div class="stat-icon">💰</div>
         <div class="stat-value">
             {% if data and data.daily_cost %}
-                ${{ "%.2f"|format(data.daily_cost) }}
+                {{ config.CURRENCY_SYMBOL }}{{ "%.2f"|format(data.daily_cost) }}
             {% elif data and data.daily_energy and config %}
                 {{ config.CURRENCY_SYMBOL }}{{ "%.2f"|format(data.daily_energy * config.ELECTRICITY_RATE) }}
             {% else %}
-                $0.00
+                {{ config.CURRENCY_SYMBOL }}0.00
             {% endif %}
         </div>
         <div class="stat-label">Today's Cost</div>
