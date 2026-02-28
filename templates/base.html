@@ -51,6 +51,11 @@
 
             <!-- Sidebar Navigation -->
             <nav class="sidebar-nav">
+                <a href="http://192.168.178.100:8080" class="nav-link">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">Home</span>
+                </a>
+                <div class="nav-divider"></div>
                 <a href="{{ url_for('overview') }}" class="nav-link {% if request.endpoint == 'overview' %}active{% endif %}">
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Overview</span>
