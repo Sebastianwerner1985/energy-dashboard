@@ -1,0 +1,239 @@
+/**
+ * SnowUI Design System - CSS Custom Properties
+ *
+ * Extracted from Figma: Dashboard Design System - Community (jhtCSVPrAXjtKM1wF1vjc7)
+ *
+ * Use these variables for consistent theming across all apps.
+ * Supports automatic dark/light mode switching.
+ */
+
+:root {
+  /* ========================================
+     COLOR TOKENS - PRIMARY
+     ======================================== */
+
+  /* Primary: Blue */
+  --color-primary: #4c98fd;
+  --color-primary-light: #7dbbff;
+  --color-primary-dark: #3b7fd4;
+  --color-primary-50: #e6f1fd;
+  --color-primary-100: #cce3fb;
+  --color-primary-200: #99c7f7;
+  --color-primary-300: #7dbbff;
+  --color-primary-400: #66abf4;
+  --color-primary-500: #4c98fd;
+  --color-primary-600: #3b7fd4;
+  --color-primary-700: #2d66ab;
+  --color-primary-800: #1e4d82;
+  --color-primary-900: #103459;
+
+  /* ========================================
+     COLOR TOKENS - CHART/SECONDARY COLORS
+     ======================================== */
+
+  /* Cyan - for charts and accents */
+  --color-cyan: #a0bce8;
+  --color-cyan-light: #c4d8f4;
+  --color-cyan-dark: #7ca0dc;
+
+  /* Mint - for success states and charts */
+  --color-mint: #6be6d3;
+  --color-mint-light: #9ef0e4;
+  --color-mint-dark: #3edcc2;
+
+  /* Purple - for charts and accents */
+  --color-purple: #b899eb;
+  --color-purple-light: #d4c2f4;
+  --color-purple-dark: #9c70e2;
+
+  /* Green - for positive values */
+  --color-green: #71dd8c;
+  --color-green-light: #9ee9af;
+  --color-green-dark: #44d169;
+
+  /* ========================================
+     SEMANTIC COLORS
+     ======================================== */
+
+  --color-success: #71dd8c;
+  --color-success-light: #9ee9af;
+  --color-success-dark: #44d169;
+
+  --color-warning: #f5b849;
+  --color-warning-light: #f8cc7a;
+  --color-warning-dark: #f2a418;
+
+  --color-error: #f25b5b;
+  --color-error-light: #f68a8a;
+  --color-error-dark: #ee2c2c;
+
+  --color-info: #4c98fd;
+  --color-info-light: #7dbbff;
+  --color-info-dark: #3b7fd4;
+
+  /* ========================================
+     LIGHT MODE (Default)
+     ======================================== */
+
+  /* Background */
+  --bg-base: #ffffff;
+  --bg-surface: #f9f9fa;
+  --bg-surface-raised: #ffffff;
+  --bg-surface-overlay: #f4f4f5;
+  --bg-muted: #e8e8ea;
+
+  /* Accent backgrounds (for stat cards, highlights) */
+  --bg-accent-primary: #edeefc;  /* Blue-tinted background */
+  --bg-accent-secondary: #e6f1fd;  /* Lighter blue background */
+  --bg-accent-mint: #e4faf6;
+  --bg-accent-purple: #f3edfc;
+
+  /* Text */
+  --text-primary: #000000;
+  --text-secondary: rgba(0, 0, 0, 0.8);
+  --text-muted: rgba(0, 0, 0, 0.4);
+  --text-inverse: #ffffff;
+
+  /* Border */
+  --border-default: #e8e8ea;
+  --border-strong: #d4d4d8;
+  --border-focus: var(--color-primary);
+
+  /* Shadows */
+  --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.08);
+  --shadow-medium: 0 4px 16px -4px rgba(0, 0, 0, 0.12);
+  --shadow-strong: 0 8px 32px -8px rgba(0, 0, 0, 0.16);
+  --shadow-glow: 0 0 20px -5px rgba(76, 152, 253, 0.3);
+
+  /* ========================================
+     SPACING SCALE (from Figma)
+     ======================================== */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-20: 80px;
+
+  /* ========================================
+     TYPOGRAPHY
+     ======================================== */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Monaco, Consolas, monospace;
+
+  /* Font sizes (from Figma) */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 28px;
+  --text-3xl: 32px;
+
+  /* Font weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+
+  /* Line heights */
+  --leading-tight: 16px;
+  --leading-normal: 20px;
+  --leading-relaxed: 32px;
+
+  /* ========================================
+     BORDER RADIUS (consistent 8px from Figma)
+     ======================================== */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* ========================================
+     TRANSITIONS
+     ======================================== */
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
+}
+
+/* ========================================
+   DARK MODE
+   ======================================== */
+.dark,
+[data-theme="dark"] {
+  /* Background */
+  --bg-base: #000000;
+  --bg-surface: #1a1a2e;
+  --bg-surface-raised: #242438;
+  --bg-surface-overlay: #2e2e44;
+  --bg-muted: #3a3a50;
+
+  /* Accent backgrounds (darker versions) */
+  --bg-accent-primary: #1e2040;
+  --bg-accent-secondary: #1a2a3e;
+  --bg-accent-mint: #1a2e2a;
+  --bg-accent-purple: #2a1e3e;
+
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.8);
+  --text-muted: rgba(255, 255, 255, 0.4);
+  --text-inverse: #000000;
+
+  /* Border */
+  --border-default: #3a3a50;
+  --border-strong: #4a4a60;
+
+  /* Shadows (stronger for dark mode) */
+  --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.3);
+  --shadow-medium: 0 4px 16px -4px rgba(0, 0, 0, 0.4);
+  --shadow-strong: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 24px -5px rgba(76, 152, 253, 0.5);
+}
+
+/* Auto dark mode based on system preference */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-base: #000000;
+    --bg-surface: #1a1a2e;
+    --bg-surface-raised: #242438;
+    --bg-surface-overlay: #2e2e44;
+    --bg-muted: #3a3a50;
+    --bg-accent-primary: #1e2040;
+    --bg-accent-secondary: #1a2a3e;
+    --bg-accent-mint: #1a2e2a;
+    --bg-accent-purple: #2a1e3e;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    --text-muted: rgba(255, 255, 255, 0.4);
+    --text-inverse: #000000;
+    --border-default: #3a3a50;
+    --border-strong: #4a4a60;
+    --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 16px -4px rgba(0, 0, 0, 0.4);
+    --shadow-strong: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 24px -5px rgba(76, 152, 253, 0.5);
+  }
+}
+
+/* ========================================
+   CHART COLOR UTILITIES
+   ======================================== */
+.chart-color-primary { color: var(--color-primary); }
+.chart-color-cyan { color: var(--color-cyan); }
+.chart-color-mint { color: var(--color-mint); }
+.chart-color-purple { color: var(--color-purple); }
+.chart-color-green { color: var(--color-green); }
+
+.chart-bg-primary { background-color: var(--color-primary); }
+.chart-bg-cyan { background-color: var(--color-cyan); }
+.chart-bg-mint { background-color: var(--color-mint); }
+.chart-bg-purple { background-color: var(--color-purple); }
+.chart-bg-green { background-color: var(--color-green); }
