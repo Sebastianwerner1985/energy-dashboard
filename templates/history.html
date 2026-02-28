@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}History - Energy Dashboard{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="flex-between">
+        <div>
+            <h1 class="page-title">Historical Trends</h1>
+            <p class="page-subtitle">Energy usage patterns over time</p>
+        </div>
+
+        <!-- Period Selector -->
+        <div style="display: flex; gap: var(--space-2);">
+            <button
+                class="period-btn active"
+                data-period="24h"
+                onclick="selectPeriod('24h', this)"
+                style="padding: var(--space-2) var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--text-primary); cursor: pointer; font-size: var(--text-sm); font-weight: var(--font-medium);"
+            >
+                24 Hours
+            </button>
+            <button
+                class="period-btn"
+                data-period="7d"
+                onclick="selectPeriod('7d', this)"
+                style="padding: var(--space-2) var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--text-primary); cursor: pointer; font-size: var(--text-sm); font-weight: var(--font-medium);"
+            >
+                7 Days
+            </button>
+            <button
+                class="period-btn"
+                data-period="30d"
+                onclick="selectPeriod('30d', this)"
+                style="padding: var(--space-2) var(--space-4); border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--text-primary); cursor: pointer; font-size: var(--text-sm); font-weight: var(--font-medium);"
+            >
+                30 Days
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Usage Trends Chart -->
+<div class="main-card">
+    <div class="main-card-header">
+        <h2 class="main-card-title">Power Usage Trends</h2>
+    </div>
+    <div class="chart-container">
+        <canvas id="trendsChart" style="max-height: 400px;"></canvas>
+    </div>
+</div>
+
+<!-- Insights -->
+<div class="main-card">
+    <h2 class="main-card-title">Usage Insights</h2>
+    <div style="margin-top: var(--space-4);">
+        {% if data and data.insights %}
+            {% for insight in data.insights %}
+            <div class="alert alert-info" style="margin-bottom: var(--space-3);">
+                <span class="alert-icon">💡</span>
+                <div class="alert-content">
+                    <div class="alert-title">{{ insight.title }}</div>
+                    <div>{{ insight.message }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: var(--text-muted);">No insights available yet. Check back after collecting more data.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .period-btn.active {
+        background-color: var(--color-primary) !important;
+        color: white !important;
+        border-color: var(--color-primary) !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+<script>
+    const root = document.documentElement;
+    const primaryColor = getComputedStyle(root).getPropertyValue('--color-primary').trim();
+    const cyanColor = getComputedStyle(root).getPropertyValue('--color-cyan').trim();
+
+    let currentChart;
+
+    function selectPeriod(period, button) {
+        // Update button states
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        button.classList.add('active');
+
+        // Load data for period
+        loadHistoryData(period);
+    }
+
+    async function loadHistoryData(period) {
+        try {
+            const response = await fetch(`/api/history?period=${period}`);
+            const data = await response.json();
+
+            if (data.success) {
+                updateChart(data.history);
+            }
+        } catch (error) {
+            console.error('Failed to load history data:', error);
+        }
+    }
+
+    function updateChart(historyData) {
+        const ctx = document.getElementById('trendsChart');
+
+        if (currentChart) {
+            currentChart.destroy();
+        }
+
+        currentChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: historyData.map(d => d.timestamp),
+                datasets: [{
+                    label: 'Power (W)',
+                    data: historyData.map(d => d.power),
+                    borderColor: primaryColor,
+                    backgroundColor: primaryColor + '20',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Initial chart load
+    const initialData = {{ data.history | tojson if data and data.history else '[]' }};
+    if (initialData.length > 0) {
+        updateChart(initialData);
+    }
+</script>
+{% endblock %}
