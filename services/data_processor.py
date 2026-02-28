@@ -116,17 +116,21 @@ class DataProcessor:
                 self._parse_power(sensor) for sensor in sensors
             )
 
-        # Format device list
-        devices = [
-            {
-                'id': sensor['entity_id'],
-                'name': sensor.get('attributes', {}).get('friendly_name', sensor['entity_id']),
+        # Format device list with room information
+        devices = []
+        for sensor in power_sensors:
+            friendly_name = sensor.get('attributes', {}).get('friendly_name', sensor['entity_id'])
+            entity_id = sensor['entity_id']
+            room = self.ha_client._extract_room(friendly_name, entity_id)
+
+            devices.append({
+                'id': entity_id,
+                'name': friendly_name,
+                'room': room,
                 'power': self._parse_power(sensor),
                 'unit': sensor.get('attributes', {}).get('unit_of_measurement', 'W'),
                 'state': sensor['state']
-            }
-            for sensor in power_sensors
-        ]
+            })
 
         data = {
             'room_power': room_power,
@@ -168,25 +172,42 @@ class DataProcessor:
         monthly_projection = daily_cost * 30
 
         # Calculate cost by device
-        device_costs = [
-            {
-                'name': sensor.get('attributes', {}).get('friendly_name', sensor['entity_id']),
-                'power': self._parse_power(sensor),
-                'daily_cost': (self._parse_power(sensor) / 1000) * 24 * rate,
-                'monthly_cost': (self._parse_power(sensor) / 1000) * 24 * 30 * rate
-            }
-            for sensor in power_sensors
-            if self._parse_power(sensor) > 0
-        ]
+        device_costs = []
+        for sensor in power_sensors:
+            friendly_name = sensor.get('attributes', {}).get('friendly_name', sensor['entity_id'])
+            entity_id = sensor['entity_id']
+            power = self._parse_power(sensor)
+
+            if power > 0:
+                room = self.ha_client._extract_room(friendly_name, entity_id)
+                device_costs.append({
+                    'name': friendly_name,
+                    'room': room,
+                    'power': power,
+                    'daily_cost': (power / 1000) * 24 * rate,
+                    'monthly_cost': (power / 1000) * 24 * 30 * rate
+                })
 
         # Sort by monthly cost
         device_costs.sort(key=lambda x: x['monthly_cost'], reverse=True)
 
+        # Generate projection data (last 30 days estimate)
+        projection_data = []
+        for i in range(30, 0, -1):
+            date = (datetime.now() - timedelta(days=i)).strftime('%Y-%m-%d')
+            projection_data.append({
+                'date': date,
+                'cost': daily_cost  # Using average daily cost as estimate
+            })
+
         data = {
             'daily_cost': daily_cost,
+            'weekly_cost': daily_cost * 7,
+            'monthly_cost': daily_cost * 30,
             'hourly_cost': hourly_cost,
             'monthly_projection': monthly_projection,
             'device_costs': device_costs[:10],  # Top 10
+            'projection_data': projection_data,
             'rate': rate,
             'timestamp': datetime.now().isoformat()
         }
@@ -218,37 +239,42 @@ class DataProcessor:
         # Get history for main power sensor (assuming first one is main)
         if not power_sensors:
             return {
+                'history': [],
                 'labels': [],
                 'values': [],
                 'period': period,
+                'insights': [],
                 'timestamp': datetime.now().isoformat()
             }
 
         main_sensor = power_sensors[0]
-        history = self.ha_client.get_history(
+        history_raw = self.ha_client.get_history(
             main_sensor['entity_id'],
             start_time.isoformat()
         )
 
         # Process history data
-        labels = []
-        values = []
+        history = []
 
-        for entry in history:
+        for entry in history_raw:
             try:
                 timestamp = parser.parse(entry['last_changed'])
                 power = float(entry['state'])
-                labels.append(timestamp.strftime('%Y-%m-%d %H:%M'))
-                values.append(power)
+                history.append({
+                    'timestamp': timestamp.strftime('%Y-%m-%d %H:%M'),
+                    'power': power
+                })
             except (ValueError, KeyError):
                 continue
 
         data = {
-            'labels': labels,
-            'values': values,
+            'history': history,
+            'labels': [h['timestamp'] for h in history],
+            'values': [h['power'] for h in history],
             'period': period,
             'sensor_name': main_sensor.get('attributes', {}).get('friendly_name', 'Power'),
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now().isoformat(),
+            'insights': []
         }
 
         self._set_cache(cache_key, data)

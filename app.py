@@ -142,6 +142,22 @@ def api_device(device_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/history')
+def api_history():
+    """API endpoint for historical data"""
+    try:
+        period = request.args.get('period', '24h')
+        data = data_processor.get_history_data(period)
+        return jsonify({
+            'success': True,
+            'history': data.get('history', []),
+            'period': period
+        })
+    except Exception as e:
+        logger.error(f"API error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.errorhandler(404)
 def not_found(error):
     """Handle 404 errors"""
