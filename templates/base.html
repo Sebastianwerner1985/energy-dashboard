@@ -19,11 +19,7 @@
 
     <!-- SnowUI Design System -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/snowui-tokens.css') }}">
-
-    <!-- Apache ECharts -->
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-
-    {% block extra_head %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/snowui-components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 
     <!-- Chart.js -->
